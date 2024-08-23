@@ -1,0 +1,60 @@
+time="2024-08-18T23:35:30+07:00" level=error msg="code: 475000001, message: Validation Error: []" fields.level=error group=/api/v1/auth/login request_id=bc8f2f5b5fab325157f5ca752d12b883 user_id=0
+time="2024-08-18T23:36:46+07:00" level=error msg="code: 475000001, message: invalid character '}' looking for beginning of object key string" fields.level=error group=/api/v1/auth/login request_id=ce517ee8ad23a03b542f9a95b3dcac98 user_id=0
+time="2024-08-18T23:36:51+07:00" level=error msg="code: 475000001, message: Validation Error: [[Password]: '' | Needs to implement 'required']" fields.level=error group=/api/v1/auth/login request_id=c92539a38003748d86f99afab85bcf11 user_id=0
+time="2024-08-24T01:49:14+07:00" level=error msg="invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=2e02d7da158786faf359628bcfbc94bb user_id=0
+time="2024-08-24T01:49:14+07:00" level=error msg="code: 10000, message: invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=2e02d7da158786faf359628bcfbc94bb user_id=0
+time="2024-08-24T01:50:13+07:00" level=error msg="invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=890e5c6b86fec367d3b70a2b194c3f04 user_id=0
+time="2024-08-24T01:50:13+07:00" level=error msg="code: 10000, message: invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=890e5c6b86fec367d3b70a2b194c3f04 user_id=0
+time="2024-08-24T01:51:09+07:00" level=error msg="invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=b72a3e468c906b9c75d1ba294920e444 user_id=0
+time="2024-08-24T01:51:09+07:00" level=error msg="code: 10000, message: invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=b72a3e468c906b9c75d1ba294920e444 user_id=0
+time="2024-08-24T02:00:48+07:00" level=warning msg="failed to get user: user not found in redis" fields.level=error group=GetUserByEmail request_id=7e9dfc2b0324f3ff97ee075fbbe23199 user_id=0
+time="2024-08-24T02:00:49+07:00" level=error msg="user not found: record not found" fields.level=error group=fetch_user_from_db request_id=7e9dfc2b0324f3ff97ee075fbbe23199 user_id=0
+time="2024-08-24T02:00:49+07:00" level=error msg="invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=7e9dfc2b0324f3ff97ee075fbbe23199 user_id=0
+time="2024-08-24T02:00:49+07:00" level=error msg="code: 10000, message: invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=7e9dfc2b0324f3ff97ee075fbbe23199 user_id=0
+time="2024-08-24T02:02:36+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=197928c3e0eb9d8b5c673f613549bdb8 user_id=0
+time="2024-08-24T02:02:37+07:00" level=error msg="failed to fetch user: record not found" fields.level=error group=fetch_user_from_db request_id=197928c3e0eb9d8b5c673f613549bdb8 user_id=0
+time="2024-08-24T02:02:37+07:00" level=error msg="invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=197928c3e0eb9d8b5c673f613549bdb8 user_id=0
+time="2024-08-24T02:02:37+07:00" level=error msg="code: 10000, message: invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=197928c3e0eb9d8b5c673f613549bdb8 user_id=0
+time="2024-08-24T02:03:26+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=207e3845314f9cf1b5e65655eabbce99 user_id=0
+time="2024-08-24T02:03:26+07:00" level=error msg="failed to fetch user: record not found" fields.level=error group=fetch_user_from_db request_id=207e3845314f9cf1b5e65655eabbce99 user_id=0
+time="2024-08-24T02:03:26+07:00" level=error msg="invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=207e3845314f9cf1b5e65655eabbce99 user_id=0
+time="2024-08-24T02:03:26+07:00" level=error msg="code: 10001, message: invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=207e3845314f9cf1b5e65655eabbce99 user_id=0
+time="2024-08-24T02:17:21+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=616c9d7d4b70ebc2ccdb3578b6cbfc32 user_id=0
+time="2024-08-24T02:17:21+07:00" level=error msg="failed to fetch user: record not found" fields.level=error group=fetch_user_from_db request_id=616c9d7d4b70ebc2ccdb3578b6cbfc32 user_id=0
+time="2024-08-24T02:17:21+07:00" level=error msg="invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=616c9d7d4b70ebc2ccdb3578b6cbfc32 user_id=0
+time="2024-08-24T02:17:21+07:00" level=error msg="code: 10001, message: invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=616c9d7d4b70ebc2ccdb3578b6cbfc32 user_id=0
+time="2024-08-24T02:17:23+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=456f3a738bb2f57ea52b1c8d9ace5989 user_id=0
+time="2024-08-24T02:17:23+07:00" level=error msg="failed to fetch user: record not found" fields.level=error group=fetch_user_from_db request_id=456f3a738bb2f57ea52b1c8d9ace5989 user_id=0
+time="2024-08-24T02:17:23+07:00" level=error msg="invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=456f3a738bb2f57ea52b1c8d9ace5989 user_id=0
+time="2024-08-24T02:17:23+07:00" level=error msg="code: 10001, message: invalid identifier or password" fields.level=error group=/api/v1/auth/login request_id=456f3a738bb2f57ea52b1c8d9ace5989 user_id=0
+time="2024-08-24T02:17:40+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=0679a164781f237a83f84b3494c888e8 user_id=0
+time="2024-08-24T02:18:03+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=a449b9692c339b484f44679df6ae5423 user_id=0
+time="2024-08-24T02:19:05+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=6bd0fe49c227ee46a5fdb90772f5ef8d user_id=0
+time="2024-08-24T02:19:13+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=9eb29864a860ccf91b2a0c023e92c2d8 user_id=0
+time="2024-08-24T02:19:45+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=4e24640906e43736f1b6b59fe52263fe user_id=0
+time="2024-08-24T02:25:27+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=7552e7ce78e1b473331f7d808900d55c user_id=0
+time="2024-08-24T02:36:43+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=9c70c4b57fdef22f70ac96783db64f1d user_id=0
+time="2024-08-24T02:42:06+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=eeb677fddb103f75192b2d73461faed6 user_id=0
+time="2024-08-24T02:42:43+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=8567dd3f3db12c939f72ab2adc10ddb9 user_id=0
+time="2024-08-24T02:42:45+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=c35f001c3ef86ae73d4fd9e477d4c0a0 user_id=0
+time="2024-08-24T02:42:48+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=a8b118f2dd7080023aeae3981ecd9585 user_id=0
+time="2024-08-24T02:43:18+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=61ec2429e09b130f089ef434c0fe8122 user_id=0
+time="2024-08-24T02:52:08+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=cf53d63fae248f913bfe366586b60104 user_id=0
+time="2024-08-24T02:52:15+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=f73727a86d3d3c6f9368369cc5e606d9 user_id=0
+time="2024-08-24T02:52:17+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=92ca203ffc8217e2507c36d2b517bda8 user_id=0
+time="2024-08-24T02:52:19+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=3dac6940409c0de19ea9b2bb00cec5fc user_id=0
+time="2024-08-24T02:52:45+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=0f499788fe4edb4a811059d89713445e user_id=0
+time="2024-08-24T02:52:48+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=2e76a10b469876317001134fdaf9273e user_id=0
+time="2024-08-24T02:52:50+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=53d2f76867c6a0020bd14375dbb1b03b user_id=0
+time="2024-08-24T02:52:52+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=49119b845e2a4b5dd751502a27e3660a user_id=0
+time="2024-08-24T02:52:55+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=653cc224be097f1b006fb2d7e6980ff2 user_id=0
+time="2024-08-24T02:52:57+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=850207ecb8c55ceb6dcf771b349f5fe0 user_id=0
+time="2024-08-24T02:52:59+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=2ea490bd3495abe0017e00432b587f5a user_id=0
+time="2024-08-24T02:53:01+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=a4f9d3045d694b2eab6f5eea8c725bd3 user_id=0
+time="2024-08-24T02:53:03+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=810ec3a42a73fdd9b38fe0e2ef285664 user_id=0
+time="2024-08-24T02:53:05+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=8fe430888136dcb80233d8f3d75d4e7b user_id=0
+time="2024-08-24T02:53:07+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=71eb82eeb9874f52fe64c4f28271eda4 user_id=0
+time="2024-08-24T02:53:26+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=6756a70338b8b75e3e3a617dc00ef6c8 user_id=0
+time="2024-08-24T02:53:28+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=fe9cb2bf0fb02c7188561548e6d58995 user_id=0
+time="2024-08-24T02:54:07+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=9910b8582e9dbac9f713e4f3619c1a46 user_id=0
+time="2024-08-24T02:59:07+07:00" level=warning msg="failed to fetch user: user not found in redis" fields.level=error group=fetch_user_from_cache request_id=fdf8656052136af8e6764fb8b476d728 user_id=0
