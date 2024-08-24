@@ -11,5 +11,6 @@ func RegisterRoutes(app *fiber.App) {
 	app.Get("/metrics", monitor.New())
 
 	v1 := app.Group("/api/v1")
+	registerPingRoutes(v1)
 	registerAuthRoutes(v1)
 }
