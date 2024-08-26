@@ -11,11 +11,15 @@ type Module interface {
 }
 
 type impl struct {
-	dbStore *db
+	cacheStore *cache
+	dbStore    *db
 }
 
 func GetModule() Module {
 	return &impl{
+		cacheStore: &cache{
+			client: config.GetCache(),
+		},
 		dbStore: &db{
 			client: config.GetDB(),
 		},
