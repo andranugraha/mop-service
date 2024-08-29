@@ -1,15 +1,30 @@
 package paymenttype
 
+import (
+	"gorm.io/gorm"
+	"time"
+)
+
 const tableName = "payment_type_tab"
+
+const (
+	PaymentTypeCashier = iota
+	PaymentTypeQR
+)
 
 type PaymentType struct {
 	Id         *uint64 `gorm:"primaryKey" json:"id"`
 	MerchantId *uint64 `json:"merchant_id"`
-	Type       *string `json:"type"`
-	Asset      *string `json:"asset"`
+	Type       *uint32 `json:"type"`
+	Name       *string `json:"name"`
+	ExtraData  []byte  `json:"extra_data"`
 	Ctime      *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime      *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime      *uint64 `json:"dtime"`
+}
+
+type QRPaymentTypeExtraData struct {
+	ImageURL string `json:"image_url"`
 }
 
 func (i *PaymentType) TableName() string {
@@ -30,16 +45,29 @@ func (i *PaymentType) GetMerchantId() uint64 {
 	return 0
 }
 
-func (i *PaymentType) GetType() string {
+func (i *PaymentType) GetType() uint32 {
 	if i.Type != nil {
 		return *i.Type
+	}
+	return 0
+}
+
+func (i *PaymentType) GetName() string {
+	if i.Name != nil {
+		return *i.Name
 	}
 	return ""
 }
 
-func (i *PaymentType) GetAsset() string {
-	if i.Asset != nil {
-		return *i.Asset
-	}
-	return ""
+func (i *PaymentType) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *PaymentType) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
+	return nil
 }

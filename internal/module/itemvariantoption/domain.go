@@ -1,5 +1,10 @@
 package itemvariantoption
 
+import (
+	"gorm.io/gorm"
+	"time"
+)
+
 const tableName = "item_variant_option_tab"
 
 type ItemVariantOption struct {
@@ -35,4 +40,24 @@ func (i *ItemVariantOption) GetPrice() uint64 {
 		return *i.Price
 	}
 	return 0
+}
+
+func (i *ItemVariantOption) GetItemVariantId() uint64 {
+	if i.ItemVariantId != nil {
+		return *i.ItemVariantId
+	}
+	return 0
+}
+
+func (i *ItemVariantOption) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *ItemVariantOption) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
+	return nil
 }

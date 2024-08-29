@@ -4,7 +4,9 @@ import "fmt"
 
 var (
 	ErrInvalidIdentifierOrPassword = fmt.Errorf("invalid identifier or password")
-	ErrFailedToGetUser             = fmt.Errorf("failed to get user")
+	ErrInvalidParam                = fmt.Errorf("invalid param")
+	ErrInternalServer              = fmt.Errorf("internal server error")
+	ErrItemNotFound                = fmt.Errorf("one or more items do not exist or have been removed")
 )
 
 const (

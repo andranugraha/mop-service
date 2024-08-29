@@ -1,5 +1,10 @@
 package table
 
+import (
+	"gorm.io/gorm"
+	"time"
+)
+
 const tableName = "table_tab"
 
 type Table struct {
@@ -34,4 +39,17 @@ func (i *Table) GetCode() string {
 		return *i.Code
 	}
 	return ""
+}
+
+func (i *Table) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *Table) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
+	return nil
 }

@@ -41,7 +41,7 @@ func (h *impl) Login(c *fiber.Ctx) error {
 		if errors.Is(err, constant.ErrInvalidIdentifierOrPassword) {
 			return response.Error(c, constant.ErrCodeInvalidParam, err.Error())
 		}
-		return response.Error(c, constant.ErrCodeInternalServer, err.Error())
+		return response.Error(c, constant.ErrCodeInternalServer, constant.ErrInternalServer.Error())
 	}
 
 	return response.Success(c, req, data)

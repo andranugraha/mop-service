@@ -6,16 +6,12 @@ import (
 )
 
 func (i *impl) GetUserByEmail(ctx context.Context, email string) (*User, error) {
-	user, err := i.cacheStore.GetUserByEmail(ctx, email)
-	if err != nil {
-		return nil, err
-	}
-
+	user, _ := i.cacheStore.GetUserByEmail(ctx, email)
 	if user != nil {
 		return user, nil
 	}
 
-	user, err = i.dbStore.GetUserByEmail(ctx, email)
+	user, err := i.dbStore.GetUserByEmail(ctx, email)
 	if err != nil {
 		return nil, err
 	}
@@ -24,10 +20,7 @@ func (i *impl) GetUserByEmail(ctx context.Context, email string) (*User, error) 
 		return nil, constant.ErrInvalidIdentifierOrPassword
 	}
 
-	err = i.cacheStore.SetUser(ctx, user)
-	if err != nil {
-		return nil, err
-	}
+	_ = i.cacheStore.SetUser(ctx, user)
 
 	return user, nil
 }

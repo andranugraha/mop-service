@@ -7,7 +7,7 @@ import (
 )
 
 type Manager interface {
-	Login(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponseData, error)
+	Login(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponse, error)
 }
 
 type impl struct {

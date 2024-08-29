@@ -2,7 +2,8 @@ package orderitem
 
 import (
 	"encoding/json"
-	"github.com/empnefsi/mop-service/internal/module/order"
+	"gorm.io/gorm"
+	"time"
 )
 
 const tableName = "order_item_tab"
@@ -11,7 +12,7 @@ type OrderItem struct {
 	Id           *uint64 `gorm:"primaryKey" json:"id"`
 	OrderId      *uint64 `json:"order_id"`
 	ItemId       *uint64 `json:"item_id"`
-	Name         *string `json:"name"`
+	ItemName     *string `json:"item_name"`
 	Amount       *uint64 `json:"amount"`
 	ItemOptions  []byte  `json:"item_options"`
 	Note         *string `json:"note"`
@@ -20,8 +21,6 @@ type OrderItem struct {
 	Ctime        *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime        *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime        *uint64 `json:"dtime"`
-
-	Order *order.Order `gorm:"foreignKey:OrderId;references:Id" json:"order"`
 }
 
 type Variant struct {
@@ -61,9 +60,9 @@ func (i *OrderItem) GetItemId() uint64 {
 	return 0
 }
 
-func (i *OrderItem) GetName() string {
-	if i.Name != nil {
-		return *i.Name
+func (i *OrderItem) GetItemName() string {
+	if i.ItemName != nil {
+		return *i.ItemName
 	}
 	return ""
 }
@@ -81,4 +80,38 @@ func (i *OrderItem) GetItemOptions() []*Variant {
 		_ = json.Unmarshal(i.ItemOptions, &variants)
 	}
 	return variants
+}
+
+func (i *OrderItem) GetNote() string {
+	if i.Note != nil {
+		return *i.Note
+	}
+	return ""
+}
+
+func (i *OrderItem) GetPricePerItem() uint64 {
+	if i.PricePerItem != nil {
+		return *i.PricePerItem
+	}
+	return 0
+}
+
+func (i *OrderItem) GetTotalPrice() uint64 {
+	if i.TotalPrice != nil {
+		return *i.TotalPrice
+	}
+	return 0
+}
+
+func (i *OrderItem) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *OrderItem) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
+	return nil
 }

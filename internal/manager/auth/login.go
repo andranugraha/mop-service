@@ -8,7 +8,7 @@ import (
 	"github.com/empnefsi/mop-service/internal/module/user"
 )
 
-func (i *impl) Login(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponseData, error) {
+func (i *impl) Login(ctx context.Context, req *auth.LoginRequest) (*auth.LoginResponse, error) {
 	userData, err := i.userModule.GetUserByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, err
@@ -27,7 +27,7 @@ func (i *impl) Login(ctx context.Context, req *auth.LoginRequest) (*auth.LoginRe
 		return nil, err
 	}
 
-	return &auth.LoginResponseData{
+	return &auth.LoginResponse{
 		Token: token,
 	}, nil
 }

@@ -5,6 +5,8 @@ import (
 	"github.com/empnefsi/mop-service/internal/module/merchant"
 	"github.com/empnefsi/mop-service/internal/module/order"
 	"github.com/empnefsi/mop-service/internal/module/paymenttype"
+	"gorm.io/gorm"
+	"time"
 )
 
 const tableName = "invoice_tab"
@@ -16,7 +18,7 @@ type Invoice struct {
 	Code           *string `json:"code"`
 	AdditionalFees []byte  `json:"additional_fees"`
 	TotalPayment   *uint64 `json:"total_payment"`
-	Status         *uint   `json:"status"`
+	Status         *uint32 `json:"status"`
 	Ctime          *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime          *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime          *uint64 `json:"dtime"`
@@ -79,9 +81,22 @@ func (i *Invoice) GetTotalPayment() uint64 {
 	return 0
 }
 
-func (i *Invoice) GetStatus() uint {
+func (i *Invoice) GetStatus() uint32 {
 	if i.Status != nil {
 		return *i.Status
 	}
 	return 0
+}
+
+func (i *Invoice) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *Invoice) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
+	return nil
 }
