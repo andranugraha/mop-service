@@ -1,4 +1,4 @@
-package table
+package merchant
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 )
 
 type Module interface {
-	GetTableByID(ctx context.Context, id uint64) (*Table, error)
+	GetMerchantByID(ctx context.Context, id uint64) (*Merchant, error)
 }
 
 type impl struct {

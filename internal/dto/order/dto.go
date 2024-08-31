@@ -10,6 +10,9 @@ type CreateOrderRequest struct {
 type CreateOrderResponse struct {
 	OrderID   uint64 `json:"order_id"`
 	OrderCode string `json:"order_code"`
+	Total     uint64 `json:"total"`
+	PaymentQR string `json:"payment_qr"`
+	DueTime   uint64 `json:"due_time"`
 }
 
 type Item struct {

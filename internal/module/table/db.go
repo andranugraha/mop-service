@@ -11,7 +11,7 @@ type db struct {
 	client *gorm.DB
 }
 
-func (d *db) GetTable(ctx context.Context, id uint64) (*Table, error) {
+func (d *db) GetTableByID(ctx context.Context, id uint64) (*Table, error) {
 	var data Table
 	err := d.client.
 		Select("id, code, merchant_id").

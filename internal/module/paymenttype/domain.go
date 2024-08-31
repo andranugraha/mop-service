@@ -1,6 +1,7 @@
 package paymenttype
 
 import (
+	"encoding/json"
 	"gorm.io/gorm"
 	"time"
 )
@@ -57,6 +58,15 @@ func (i *PaymentType) GetName() string {
 		return *i.Name
 	}
 	return ""
+}
+
+func (i *PaymentType) GetQRPaymentTypeExtraData() *QRPaymentTypeExtraData {
+	if i.GetType() == PaymentTypeQR {
+		extraData := &QRPaymentTypeExtraData{}
+		_ = json.Unmarshal(i.ExtraData, extraData)
+		return extraData
+	}
+	return nil
 }
 
 func (i *PaymentType) BeforeCreate(tx *gorm.DB) error {

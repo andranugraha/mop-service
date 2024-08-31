@@ -69,6 +69,20 @@ func (m *Merchant) GetMtime() uint64 {
 	return 0
 }
 
+func (m *Merchant) GetAdditionalFees() []*additionalfee.AdditionalFee {
+	if m.AdditionalFees != nil {
+		return m.AdditionalFees
+	}
+	return nil
+}
+
+func (m *Merchant) GetPaymentTypes() []*paymenttype.PaymentType {
+	if m.PaymentTypes != nil {
+		return m.PaymentTypes
+	}
+	return nil
+}
+
 func generateMerchantCode(name string) string {
 	words := strings.Fields(name)
 	var initials string

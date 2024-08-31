@@ -15,9 +15,6 @@ func (d *db) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	var user User
 	err := d.client.
 		Select("id, email, password, merchant_id").
-		Preload("Merchant", func(db *gorm.DB) *gorm.DB {
-			return db.Select("id, code, name")
-		}).
 		Where("email = ?", email).
 		Where("dtime is null").
 		Take(&user).

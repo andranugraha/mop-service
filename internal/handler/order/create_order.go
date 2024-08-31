@@ -1,30 +1,15 @@
-package auth
+package order
 
 import (
 	"github.com/empnefsi/mop-service/internal/common/constant"
 	"github.com/empnefsi/mop-service/internal/common/response"
 	"github.com/empnefsi/mop-service/internal/common/validator"
-	"github.com/empnefsi/mop-service/internal/dto/auth"
-	authManager "github.com/empnefsi/mop-service/internal/manager/auth"
+	"github.com/empnefsi/mop-service/internal/dto/order"
 	"github.com/gofiber/fiber/v2"
 )
 
-type Handler interface {
-	Login(c *fiber.Ctx) error
-}
-
-type impl struct {
-	manager authManager.Manager
-}
-
-func NewHandler() Handler {
-	return &impl{
-		manager: authManager.NewManager(),
-	}
-}
-
-func (h *impl) Login(c *fiber.Ctx) error {
-	req := new(auth.LoginRequest)
+func (h *impl) CreateOrder(c *fiber.Ctx) error {
+	req := new(order.CreateOrderRequest)
 	if err := c.BodyParser(req); err != nil {
 		return response.Error(c, req, constant.ErrCodeInvalidParam, err.Error())
 	}
@@ -33,7 +18,7 @@ func (h *impl) Login(c *fiber.Ctx) error {
 		return response.Error(c, req, constant.ErrCodeInvalidParam, err.Error())
 	}
 
-	data, err := h.manager.Login(c.UserContext(), req)
+	data, err := h.manager.CreateOrder(c.UserContext(), req)
 	if err != nil {
 		code := constant.GetErrorCode(err)
 		if code != constant.ErrCodeInternalServer {

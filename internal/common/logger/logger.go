@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
 )
 
 var (
@@ -63,6 +64,16 @@ func init() {
 
 func Data(ctx context.Context, logGroup string, req interface{}, res interface{}) {
 	md, _ := metadata.FromIncomingContext(ctx)
+	reqJSON, _ := json.Marshal(req)
+	resJSON, _ := json.Marshal(res)
+
+	startTime := md.Get("start_time")
+	var cost time.Duration
+	if len(md.Get("start_time")) > 0 {
+		startTimeInt, _ := time.Parse(time.RFC3339Nano, startTime[0])
+		cost = time.Since(startTimeInt)
+	}
+
 	logEntry := dataLog.WithFields(logrus.Fields{
 		"group": logGroup,
 		"request_id": func() string {
@@ -77,13 +88,12 @@ func Data(ctx context.Context, logGroup string, req interface{}, res interface{}
 			}
 			return "0"
 		}(),
+		"cost":     cost,
+		"request":  string(reqJSON),
+		"response": string(resJSON),
 	})
 
-	reqJSON, _ := json.Marshal(req)
-	resJSON, _ := json.Marshal(res)
-	formattedMsg := fmt.Sprintf("response_data_record | request: %v, response: %v", string(reqJSON), string(resJSON))
-
-	logEntry.Info(formattedMsg)
+	logEntry.Info("response_data_record")
 }
 
 func Info(ctx context.Context, logGroup, msg string, args ...interface{}) {
@@ -255,4 +265,77 @@ func Panic(ctx context.Context, msg string, args ...interface{}) {
 		}(),
 	})
 	logEntry.Error(formattedMsg)
+}
+
+func IncomingRequest(ctx context.Context, logGroup, req interface{}) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	reqJSON, _ := json.Marshal(req)
+	logEntry := infoLog.WithFields(logrus.Fields{
+		"group": logGroup,
+		"request_id": func() string {
+			if len(md.Get("request_id")) > 0 {
+				return md.Get("request_id")[0]
+			}
+			return "0"
+		}(),
+		"user_id": func() string {
+			if len(md.Get("user_id")) > 0 {
+				return md.Get("user_id")[0]
+			}
+			return "0"
+		}(),
+		"request": string(reqJSON),
+	})
+
+	logEntry.Info("incoming_request")
+}
+
+func OutgoingRequest(ctx context.Context, logGroup, req interface{}) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	reqJSON, _ := json.Marshal(req)
+	logEntry := infoLog.WithFields(logrus.Fields{
+		"group": logGroup,
+		"request_id": func() string {
+			if len(md.Get("request_id")) > 0 {
+				return md.Get("request_id")[0]
+			}
+			return "0"
+		}(),
+		"user_id": func() string {
+			if len(md.Get("user_id")) > 0 {
+				return md.Get("user_id")[0]
+			}
+			return "0"
+		}(),
+		"request": string(reqJSON),
+	})
+
+	logEntry.Info("outgoing_request")
+}
+
+func DataWithCost(ctx context.Context, logGroup, req interface{}, res interface{}, cost time.Duration) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	reqJSON, _ := json.Marshal(req)
+	resJSON, _ := json.Marshal(res)
+
+	logEntry := dataLog.WithFields(logrus.Fields{
+		"group": logGroup,
+		"request_id": func() string {
+			if len(md.Get("request_id")) > 0 {
+				return md.Get("request_id")[0]
+			}
+			return "0"
+		}(),
+		"user_id": func() string {
+			if len(md.Get("user_id")) > 0 {
+				return md.Get("user_id")[0]
+			}
+			return "0"
+		}(),
+		"cost":     cost,
+		"request":  string(reqJSON),
+		"response": string(resJSON),
+	})
+
+	logEntry.Info("response_data_record")
 }
