@@ -2,15 +2,25 @@ package invoice
 
 import (
 	"encoding/json"
+	"errors"
+	"strconv"
+	"strings"
 	"time"
 
+	"google.golang.org/protobuf/proto"
+
 	"github.com/empnefsi/mop-service/internal/module/merchant"
-	"github.com/empnefsi/mop-service/internal/module/order"
 	"github.com/empnefsi/mop-service/internal/module/paymenttype"
 	"gorm.io/gorm"
 )
 
 const tableName = "invoice_tab"
+
+const (
+	StatusPending uint32 = iota
+	StatusPaid
+	StatusCancelled
+)
 
 type Invoice struct {
 	Id             *uint64 `gorm:"primaryKey" json:"id"`
@@ -26,12 +36,13 @@ type Invoice struct {
 
 	PaymentType *paymenttype.PaymentType `gorm:"foreignKey:PaymentTypeId;references:Id" json:"payment_type"`
 	Merchant    *merchant.Merchant       `gorm:"foreignKey:MerchantId;references:Id" json:"merchant"`
-	Orders      []*order.Order           `gorm:"many2many:invoice_order_tab;" json:"orders"`
 }
 
 type AdditionalFee struct {
 	Id     *uint64 `json:"id"`
+	Type   *uint32 `json:"type"`
 	Name   *string `json:"name"`
+	Fee    *uint64 `json:"fee"`
 	Amount *uint64 `json:"amount"`
 }
 
@@ -89,10 +100,49 @@ func (i *Invoice) GetStatus() uint32 {
 	return 0
 }
 
+func (i *Invoice) generateInvoiceCode(latestInvoice *Invoice) string {
+	var (
+		prefix              string
+		latestInvoiceNumber int
+	)
+	if latestInvoice == nil {
+		merchantCode := i.GetCode()
+		now := time.Now()
+		date := now.Format("060102")
+		prefix = merchantCode + date
+	} else {
+		code := latestInvoice.GetCode()
+		parts := strings.Split(code, "-")
+		prefix = parts[0]
+		latestInvoiceNumber, _ = strconv.Atoi(parts[1])
+	}
+
+	invoiceNumber := latestInvoiceNumber + 1
+	return prefix + "-" + strconv.Itoa(invoiceNumber)
+}
+
 func (i *Invoice) BeforeCreate(tx *gorm.DB) error {
-	now := uint64(time.Now().Unix())
-	i.Ctime = &now
-	i.Mtime = &now
+	var todayLatestInvoice *Invoice
+	now := time.Now()
+	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	err := tx.
+		Select("id, code").
+		Where("merchant_id = ?", i.GetMerchantId()).
+		Where("status != ?", StatusCancelled).
+		Where("dtime is null").
+		Where("ctime >= ?", startOfDay.Unix()).
+		Last(&todayLatestInvoice).Error
+	if err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+		todayLatestInvoice = nil
+	}
+
+	i.Code = proto.String(i.generateInvoiceCode(todayLatestInvoice))
+	nowUnix := uint64(now.Unix())
+	i.Ctime = &nowUnix
+	i.Mtime = &nowUnix
 	return nil
 }
 

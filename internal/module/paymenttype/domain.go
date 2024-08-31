@@ -10,8 +10,8 @@ import (
 const tableName = "payment_type_tab"
 
 const (
-	PaymentTypeCashier = iota
-	PaymentTypeQR
+	PaymentTypeQR = iota
+	PaymentTypeCashier
 )
 
 type PaymentType struct {

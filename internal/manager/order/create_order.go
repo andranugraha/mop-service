@@ -5,6 +5,8 @@ import (
 	"encoding/json"
 	"sync"
 
+	"github.com/empnefsi/mop-service/internal/module/invoice"
+
 	"github.com/empnefsi/mop-service/internal/common/constant"
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	dto "github.com/empnefsi/mop-service/internal/dto/order"
@@ -14,7 +16,6 @@ import (
 	"github.com/empnefsi/mop-service/internal/module/itemvariantoption"
 	"github.com/empnefsi/mop-service/internal/module/order"
 	"github.com/empnefsi/mop-service/internal/module/orderitem"
-	"github.com/empnefsi/mop-service/internal/module/paymenttype"
 	"github.com/empnefsi/mop-service/internal/module/tableorder"
 	"google.golang.org/protobuf/proto"
 )
@@ -53,14 +54,27 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 		return nil, constant.ErrInternalServer
 	}
 
-	var extraCharge uint64
+	var (
+		additionalFees []*invoice.AdditionalFee
+		extraCharge    uint64
+	)
 	for _, additionalFee := range merchant.GetAdditionalFees() {
+		data := &invoice.AdditionalFee{
+			Id:   additionalFee.Id,
+			Type: additionalFee.Type,
+			Name: additionalFee.Name,
+			Fee:  additionalFee.Fee,
+		}
 		switch additionalFee.GetType() {
 		case additionalfee.AdditionalFeeTypeFixed:
+			data.Amount = proto.Uint64(additionalFee.GetFee())
 			extraCharge += additionalFee.GetFee()
 		case additionalfee.AdditionalFeeTypePercentage:
-			extraCharge += basePrice * additionalFee.GetFee() / 100
+			charge := basePrice * additionalFee.GetFee() / 100
+			data.Amount = proto.Uint64(charge)
+			extraCharge += charge
 		}
+		additionalFees = append(additionalFees, data)
 	}
 
 	grandTotal := basePrice + extraCharge
@@ -69,13 +83,39 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 		return nil, constant.ErrOrderTotalPriceMismatch
 	}
 
+	var (
+		paymentQR string
+		paymentID uint64
+	)
+	for _, paymentType := range merchant.GetPaymentTypes() {
+		if paymentType.GetType() == req.PaymentMethod {
+			paymentID = paymentType.GetId()
+			paymentQR = paymentType.GetQRPaymentTypeExtraData().ImageURL
+			break
+		}
+	}
+
+	additionalFeeJSON, err := json.Marshal(additionalFees)
+	if err != nil {
+		logger.Error(ctx, "CreateOrder", "failed to marshal additional fees: %v", err.Error())
+		return nil, constant.ErrInternalServer
+	}
+	invoiceData := &invoice.Invoice{
+		Code:           proto.String(merchant.GetCode()),
+		MerchantId:     proto.Uint64(req.MerchantID),
+		PaymentTypeId:  proto.Uint64(paymentID),
+		TotalPayment:   proto.Uint64(grandTotal),
+		AdditionalFees: additionalFeeJSON,
+		Status:         proto.Uint32(invoice.StatusPending),
+	}
+
 	orderData := &order.Order{
-		Code:       proto.String(merchant.GetCode()),
 		MerchantId: proto.Uint64(req.MerchantID),
 		TotalSpend: proto.Uint64(basePrice),
 		Status:     proto.Uint32(order.StatusPending),
 		OrderItems: orderItems,
 		Tables:     []*tableorder.TableOrder{{TableId: proto.Uint64(req.TableID)}},
+		Invoice:    invoiceData,
 	}
 	logger.Data(ctx, "CreateOrder", "order", orderData)
 	err = m.orderModule.CreateOrder(ctx, orderData)
@@ -84,19 +124,11 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 		return nil, constant.ErrInternalServer
 	}
 
-	var paymentQR string
-	for _, paymentType := range merchant.GetPaymentTypes() {
-		if paymentType.GetType() == paymenttype.PaymentTypeQR {
-			paymentQR = paymentType.GetQRPaymentTypeExtraData().ImageURL
-			break
-		}
-	}
-
 	dueTime := orderData.GetCtime() + 300 // 5 minutes
 
 	return &dto.CreateOrderResponse{
 		OrderID:   orderData.GetId(),
-		OrderCode: orderData.GetCode(),
+		OrderCode: invoiceData.GetCode(),
 		Total:     grandTotal,
 		PaymentQR: paymentQR,
 		DueTime:   dueTime,

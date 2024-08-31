@@ -1,10 +1,11 @@
 package order
 
 type CreateOrderRequest struct {
-	MerchantID uint64 `json:"merchant_id" validate:"required"`
-	TableID    uint64 `json:"table_id" validate:"required"`
-	Items      []Item `json:"items" validate:"required"`
-	TotalPrice uint64 `json:"total_price" validate:"required"`
+	MerchantID    uint64 `json:"merchant_id" validate:"required"`
+	TableID       uint64 `json:"table_id" validate:"required"`
+	Items         []Item `json:"items" validate:"required"`
+	PaymentMethod uint32 `json:"payment_method"`
+	TotalPrice    uint64 `json:"total_price" validate:"required"`
 }
 
 type CreateOrderResponse struct {
