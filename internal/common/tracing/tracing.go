@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"encoding/hex"
+
 	"google.golang.org/grpc/metadata"
 )
 
@@ -31,4 +32,18 @@ func NewOutgoingContextWithTracingID(ctx context.Context) context.Context {
 		return ctx
 	}
 	return metadata.NewOutgoingContext(ctx, md)
+}
+
+func AppendMetadataToIncomingContext(ctx context.Context, key, value string) context.Context {
+	md, _ := metadata.FromIncomingContext(ctx)
+	newMD := metadata.Join(md, metadata.Pairs(key, value))
+	return metadata.NewIncomingContext(ctx, newMD)
+}
+
+func GetTracingIDFromCtx(ctx context.Context) string {
+	md, _ := metadata.FromIncomingContext(ctx)
+	if len(md["request_id"]) == 0 {
+		return ""
+	}
+	return md["request_id"][0]
 }

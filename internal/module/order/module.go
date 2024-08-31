@@ -1,8 +1,13 @@
 package order
 
-import "github.com/empnefsi/mop-service/internal/config"
+import (
+	"context"
+
+	"github.com/empnefsi/mop-service/internal/config"
+)
 
 type Module interface {
+	CreateOrder(ctx context.Context, order *Order) error
 }
 
 type impl struct {

@@ -2,9 +2,10 @@ package config
 
 import (
 	"errors"
+	"time"
+
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"time"
 )
 
 var globalDB *gorm.DB

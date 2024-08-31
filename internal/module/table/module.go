@@ -2,19 +2,24 @@ package table
 
 import (
 	"context"
+
 	"github.com/empnefsi/mop-service/internal/config"
 )
 
 type Module interface {
-	GetTable(ctx context.Context, id uint64) (*Table, error)
+	GetTableByID(ctx context.Context, id uint64) (*Table, error)
 }
 
 type impl struct {
-	dbStore *db
+	cacheStore *cache
+	dbStore    *db
 }
 
 func GetModule() Module {
 	return &impl{
+		cacheStore: &cache{
+			client: config.GetCache(),
+		},
 		dbStore: &db{
 			client: config.GetDB(),
 		},

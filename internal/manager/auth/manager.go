@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+
 	"github.com/empnefsi/mop-service/internal/dto/auth"
 	"github.com/empnefsi/mop-service/internal/module/user"
 )

@@ -1,6 +1,10 @@
 package merchant
 
 import (
+	"math/rand"
+	"strings"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/module/additionalfee"
 	"github.com/empnefsi/mop-service/internal/module/itemcategory"
 	"github.com/empnefsi/mop-service/internal/module/paymenttype"
@@ -8,9 +12,6 @@ import (
 	"github.com/empnefsi/mop-service/internal/module/user"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
-	"math/rand"
-	"strings"
-	"time"
 )
 
 const tableName = "merchant_tab"
@@ -67,6 +68,20 @@ func (m *Merchant) GetMtime() uint64 {
 		return *m.Mtime
 	}
 	return 0
+}
+
+func (m *Merchant) GetAdditionalFees() []*additionalfee.AdditionalFee {
+	if m.AdditionalFees != nil {
+		return m.AdditionalFees
+	}
+	return nil
+}
+
+func (m *Merchant) GetPaymentTypes() []*paymenttype.PaymentType {
+	if m.PaymentTypes != nil {
+		return m.PaymentTypes
+	}
+	return nil
 }
 
 func generateMerchantCode(name string) string {

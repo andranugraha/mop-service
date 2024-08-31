@@ -2,11 +2,12 @@ package invoice
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/module/merchant"
 	"github.com/empnefsi/mop-service/internal/module/order"
 	"github.com/empnefsi/mop-service/internal/module/paymenttype"
 	"gorm.io/gorm"
-	"time"
 )
 
 const tableName = "invoice_tab"
