@@ -3,6 +3,7 @@ package item
 import (
 	"context"
 	"errors"
+
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	"gorm.io/gorm"
 )
@@ -38,6 +39,20 @@ func (d *db) GetActiveItemsByIDs(ctx context.Context, ids []uint64) ([]*Item, er
 		Select("id, name, description, price").
 		Where("id IN (?)", ids).
 		Where("dtime is null").
+		Find(&items).Error
+	if err != nil {
+		logger.Error(ctx, "fetch_items_from_db", "failed to fetch items: %v", err.Error())
+		return nil, err
+	}
+
+	return items, nil
+}
+
+func (d *db) GetActiveItemsByCategoryId(ctx context.Context, categoryID uint64) ([]*Item, error) {
+	var items []*Item
+	err := d.client.
+		Where("item_category_id = ?", categoryID).
+		Order("priority DESC").
 		Find(&items).Error
 	if err != nil {
 		logger.Error(ctx, "fetch_items_from_db", "failed to fetch items: %v", err.Error())

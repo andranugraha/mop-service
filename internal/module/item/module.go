@@ -2,12 +2,14 @@ package item
 
 import (
 	"context"
+
 	"github.com/empnefsi/mop-service/internal/config"
 )
 
 type Module interface {
 	GetActiveItem(ctx context.Context, id uint64) (*Item, error)
 	GetActiveItemsByIDs(ctx context.Context, ids []uint64) ([]*Item, error)
+	GetActiveItemsByCategoryId(ctx context.Context, categoryID uint64) ([]*Item, error)
 }
 
 type impl struct {
