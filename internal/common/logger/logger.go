@@ -23,6 +23,9 @@ var (
 
 func init() {
 	logDir := "log"
+	if err := os.MkdirAll(logDir, 0o755); err != nil {
+		logrus.Fatalf("Failed to create log directory: %v", err)
+	}
 	infoLogger := logrus.New()
 	infoFile, err := os.OpenFile(filepath.Join(logDir, "info.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
