@@ -1,6 +1,6 @@
 module github.com/empnefsi/mop-service
 
-go 1.22.6
+go 1.22
 
 require (
 	github.com/go-playground/validator/v10 v10.22.0
