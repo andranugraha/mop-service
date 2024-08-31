@@ -1,9 +1,10 @@
 package item
 
 import (
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/module/itemvariant"
 	"gorm.io/gorm"
-	"time"
 )
 
 const tableName = "item_tab"

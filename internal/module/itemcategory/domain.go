@@ -1,9 +1,10 @@
 package itemcategory
 
 import (
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/module/item"
 	"gorm.io/gorm"
-	"time"
 )
 
 const tableName = "item_category_tab"

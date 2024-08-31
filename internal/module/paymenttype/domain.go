@@ -2,8 +2,9 @@ package paymenttype
 
 import (
 	"encoding/json"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const tableName = "payment_type_tab"

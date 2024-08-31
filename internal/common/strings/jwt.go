@@ -2,9 +2,10 @@ package strings
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/config"
 	"github.com/golang-jwt/jwt/v4"
-	"time"
 )
 
 type Claims struct {
@@ -45,7 +46,6 @@ func ValidateToken(tokenString string) (*Claims, error) {
 		// Return the secret key
 		return []byte(config.GetTokenSecret()), nil
 	})
-
 	if err != nil {
 		return nil, err
 	}

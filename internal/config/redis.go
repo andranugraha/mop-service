@@ -2,9 +2,11 @@ package config
 
 import (
 	"context"
+	"crypto/tls"
 	"errors"
-	"github.com/go-redis/redis/v8"
 	"time"
+
+	"github.com/go-redis/redis/v8"
 )
 
 var globalCache *redis.Client
@@ -20,6 +22,9 @@ func initCache() error {
 		IdleTimeout:  5 * time.Minute,
 		MaxConnAge:   30 * time.Minute,
 		PoolTimeout:  10 * time.Second,
+		TLSConfig: &tls.Config{
+			InsecureSkipVerify: true,
+		},
 	})
 
 	_, err := globalCache.Ping(context.Background()).Result()

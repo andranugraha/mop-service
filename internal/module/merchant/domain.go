@@ -1,6 +1,10 @@
 package merchant
 
 import (
+	"math/rand"
+	"strings"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/module/additionalfee"
 	"github.com/empnefsi/mop-service/internal/module/itemcategory"
 	"github.com/empnefsi/mop-service/internal/module/paymenttype"
@@ -8,9 +12,6 @@ import (
 	"github.com/empnefsi/mop-service/internal/module/user"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
-	"math/rand"
-	"strings"
-	"time"
 )
 
 const tableName = "merchant_tab"

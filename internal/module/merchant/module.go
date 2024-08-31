@@ -2,6 +2,7 @@ package merchant
 
 import (
 	"context"
+
 	"github.com/empnefsi/mop-service/internal/config"
 )
 

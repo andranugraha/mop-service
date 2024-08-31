@@ -1,8 +1,9 @@
 package invoiceorder
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const tableName = "invoice_order_tab"

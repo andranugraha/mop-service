@@ -1,9 +1,10 @@
 package config
 
 import (
-	_ "github.com/joho/godotenv/autoload"
 	"os"
 	"strconv"
+
+	_ "github.com/joho/godotenv/autoload"
 )
 
 var (

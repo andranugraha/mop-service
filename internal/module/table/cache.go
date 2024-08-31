@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	"github.com/empnefsi/mop-service/internal/config"
 	"github.com/go-redis/redis/v8"
-	"time"
 )
 
 type cache struct {
@@ -17,7 +18,6 @@ type cache struct {
 
 func (c *cache) getTableKeyPatternByCode(code string) string {
 	return fmt.Sprintf("table_data:tableid:*:code:%s", code)
-
 }
 
 func (c *cache) getTableKeyPatternByID(id uint64) string {

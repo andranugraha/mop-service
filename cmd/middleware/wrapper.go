@@ -3,13 +3,14 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/common/constant"
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	"github.com/empnefsi/mop-service/internal/common/response"
 	"github.com/empnefsi/mop-service/internal/common/tracing"
 	"github.com/empnefsi/mop-service/internal/config"
 	"github.com/gofiber/fiber/v2"
-	"time"
 )
 
 func TrafficWrapperMiddleware(c *fiber.Ctx) error {

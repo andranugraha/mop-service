@@ -3,6 +3,8 @@ package order
 import (
 	"context"
 	"encoding/json"
+	"sync"
+
 	"github.com/empnefsi/mop-service/internal/common/constant"
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	dto "github.com/empnefsi/mop-service/internal/dto/order"
@@ -15,7 +17,6 @@ import (
 	"github.com/empnefsi/mop-service/internal/module/paymenttype"
 	"github.com/empnefsi/mop-service/internal/module/tableorder"
 	"google.golang.org/protobuf/proto"
-	"sync"
 )
 
 func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*dto.CreateOrderResponse, error) {

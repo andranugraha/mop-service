@@ -1,8 +1,9 @@
 package tableorder
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const tableName = "table_order_tab"

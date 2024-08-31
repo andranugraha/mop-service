@@ -2,8 +2,9 @@ package orderitem
 
 import (
 	"encoding/json"
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const tableName = "order_item_tab"

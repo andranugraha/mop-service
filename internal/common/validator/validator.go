@@ -2,9 +2,10 @@ package validator
 
 import (
 	"fmt"
+	"sync"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/pkg/errors"
-	"sync"
 )
 
 var (

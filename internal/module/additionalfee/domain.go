@@ -1,8 +1,9 @@
 package additionalfee
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 const tableName = "additional_fee_tab"

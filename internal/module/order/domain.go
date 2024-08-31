@@ -2,13 +2,14 @@ package order
 
 import (
 	"errors"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/module/orderitem"
 	"github.com/empnefsi/mop-service/internal/module/tableorder"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
-	"strconv"
-	"strings"
-	"time"
 )
 
 const tableName = "order_tab"

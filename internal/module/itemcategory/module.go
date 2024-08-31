@@ -2,8 +2,7 @@ package itemcategory
 
 import "github.com/empnefsi/mop-service/internal/config"
 
-type Module interface {
-}
+type Module interface{}
 
 type impl struct {
 	cacheStore *cache

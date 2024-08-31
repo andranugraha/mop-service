@@ -1,9 +1,10 @@
 package itemvariant
 
 import (
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/module/itemvariantoption"
 	"gorm.io/gorm"
-	"time"
 )
 
 const tableName = "item_variant_tab"

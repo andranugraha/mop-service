@@ -4,14 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/metadata"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -23,7 +24,7 @@ var (
 func init() {
 	logDir := "log"
 	infoLogger := logrus.New()
-	infoFile, err := os.OpenFile(filepath.Join(logDir, "info.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	infoFile, err := os.OpenFile(filepath.Join(logDir, "info.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		logrus.Fatalf("Failed to log to info file, using default stderr: %v", err)
 	}
@@ -36,7 +37,7 @@ func init() {
 	infoLog = infoLogger.WithField("level", "info")
 
 	errorLogger := logrus.New()
-	errorFile, err := os.OpenFile(filepath.Join(logDir, "error.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	errorFile, err := os.OpenFile(filepath.Join(logDir, "error.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		logrus.Fatalf("Failed to log to error file, using default stderr: %v", err)
 	}
@@ -49,7 +50,7 @@ func init() {
 	errorLog = errorLogger.WithField("level", "error")
 
 	dataLogger := logrus.New()
-	dataFile, err := os.OpenFile(filepath.Join(logDir, "data.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	dataFile, err := os.OpenFile(filepath.Join(logDir, "data.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		logrus.Fatalf("Failed to log to data file, using default stderr: %v", err)
 	}
