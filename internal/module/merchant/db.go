@@ -15,7 +15,6 @@ type db struct {
 func (d *db) GetMerchantByCode(ctx context.Context, code string) (*Merchant, error) {
 	var merchant Merchant
 	err := d.client.
-		Select("code, name").
 		Where("code = ?", code).
 		Take(&merchant).
 		Error
