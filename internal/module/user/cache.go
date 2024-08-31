@@ -5,10 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	"github.com/empnefsi/mop-service/internal/config"
 	"github.com/go-redis/redis/v8"
-	"time"
 )
 
 type cache struct {
@@ -27,6 +28,7 @@ func (c *cache) GetUserByEmail(ctx context.Context, email string) (*User, error)
 	keyPattern := c.getUserKeyPatternByEmail(email)
 	keys, err := c.client.Keys(ctx, keyPattern).Result()
 	if err != nil {
+		logger.Error(ctx, "fetch_user_from_cache", "failed to fetch user: %v", err)
 		return nil, err
 	}
 
@@ -41,13 +43,14 @@ func (c *cache) GetUserByEmail(ctx context.Context, email string) (*User, error)
 			logger.Warn(ctx, "fetch_user_from_cache", "failed to fetch user: user not found in redis")
 			return nil, nil
 		}
+		logger.Error(ctx, "fetch_user_from_cache", "failed to fetch user: %v", err)
 		return nil, err
 	}
 
 	user := &User{}
 	err = json.Unmarshal([]byte(jsonValue), user)
 	if err != nil {
-		logger.Warn(ctx, "fetch_user_from_cache", "failed to unmarshal user: %v", err)
+		logger.Error(ctx, "fetch_user_from_cache", "failed to unmarshal user: %v", err)
 		return nil, err
 	}
 

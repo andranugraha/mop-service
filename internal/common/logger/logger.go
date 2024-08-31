@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/metadata"
 	"io"
 	"os"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"time"
+
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/metadata"
 )
 
 var (
@@ -22,7 +24,7 @@ var (
 func init() {
 	logDir := "log"
 	infoLogger := logrus.New()
-	infoFile, err := os.OpenFile(filepath.Join(logDir, "info.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	infoFile, err := os.OpenFile(filepath.Join(logDir, "info.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		logrus.Fatalf("Failed to log to info file, using default stderr: %v", err)
 	}
@@ -35,7 +37,7 @@ func init() {
 	infoLog = infoLogger.WithField("level", "info")
 
 	errorLogger := logrus.New()
-	errorFile, err := os.OpenFile(filepath.Join(logDir, "error.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	errorFile, err := os.OpenFile(filepath.Join(logDir, "error.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		logrus.Fatalf("Failed to log to error file, using default stderr: %v", err)
 	}
@@ -48,7 +50,7 @@ func init() {
 	errorLog = errorLogger.WithField("level", "error")
 
 	dataLogger := logrus.New()
-	dataFile, err := os.OpenFile(filepath.Join(logDir, "data.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	dataFile, err := os.OpenFile(filepath.Join(logDir, "data.log"), os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		logrus.Fatalf("Failed to log to data file, using default stderr: %v", err)
 	}
@@ -63,6 +65,16 @@ func init() {
 
 func Data(ctx context.Context, logGroup string, req interface{}, res interface{}) {
 	md, _ := metadata.FromIncomingContext(ctx)
+	reqJSON, _ := json.Marshal(req)
+	resJSON, _ := json.Marshal(res)
+
+	startTime := md.Get("start_time")
+	var cost time.Duration
+	if len(md.Get("start_time")) > 0 {
+		startTimeInt, _ := time.Parse(time.RFC3339Nano, startTime[0])
+		cost = time.Since(startTimeInt)
+	}
+
 	logEntry := dataLog.WithFields(logrus.Fields{
 		"group": logGroup,
 		"request_id": func() string {
@@ -77,13 +89,12 @@ func Data(ctx context.Context, logGroup string, req interface{}, res interface{}
 			}
 			return "0"
 		}(),
+		"cost":     cost,
+		"request":  string(reqJSON),
+		"response": string(resJSON),
 	})
 
-	reqJSON, _ := json.Marshal(req)
-	resJSON, _ := json.Marshal(res)
-	formattedMsg := fmt.Sprintf("response_data_record | request: %v, response: %v", string(reqJSON), string(resJSON))
-
-	logEntry.Info(formattedMsg)
+	logEntry.Info("response_data_record")
 }
 
 func Info(ctx context.Context, logGroup, msg string, args ...interface{}) {
@@ -255,4 +266,77 @@ func Panic(ctx context.Context, msg string, args ...interface{}) {
 		}(),
 	})
 	logEntry.Error(formattedMsg)
+}
+
+func IncomingRequest(ctx context.Context, logGroup, req interface{}) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	reqJSON, _ := json.Marshal(req)
+	logEntry := infoLog.WithFields(logrus.Fields{
+		"group": logGroup,
+		"request_id": func() string {
+			if len(md.Get("request_id")) > 0 {
+				return md.Get("request_id")[0]
+			}
+			return "0"
+		}(),
+		"user_id": func() string {
+			if len(md.Get("user_id")) > 0 {
+				return md.Get("user_id")[0]
+			}
+			return "0"
+		}(),
+		"request": string(reqJSON),
+	})
+
+	logEntry.Info("incoming_request")
+}
+
+func OutgoingRequest(ctx context.Context, logGroup, req interface{}) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	reqJSON, _ := json.Marshal(req)
+	logEntry := infoLog.WithFields(logrus.Fields{
+		"group": logGroup,
+		"request_id": func() string {
+			if len(md.Get("request_id")) > 0 {
+				return md.Get("request_id")[0]
+			}
+			return "0"
+		}(),
+		"user_id": func() string {
+			if len(md.Get("user_id")) > 0 {
+				return md.Get("user_id")[0]
+			}
+			return "0"
+		}(),
+		"request": string(reqJSON),
+	})
+
+	logEntry.Info("outgoing_request")
+}
+
+func DataWithCost(ctx context.Context, logGroup, req interface{}, res interface{}, cost time.Duration) {
+	md, _ := metadata.FromIncomingContext(ctx)
+	reqJSON, _ := json.Marshal(req)
+	resJSON, _ := json.Marshal(res)
+
+	logEntry := dataLog.WithFields(logrus.Fields{
+		"group": logGroup,
+		"request_id": func() string {
+			if len(md.Get("request_id")) > 0 {
+				return md.Get("request_id")[0]
+			}
+			return "0"
+		}(),
+		"user_id": func() string {
+			if len(md.Get("user_id")) > 0 {
+				return md.Get("user_id")[0]
+			}
+			return "0"
+		}(),
+		"cost":     cost,
+		"request":  string(reqJSON),
+		"response": string(resJSON),
+	})
+
+	logEntry.Info("response_data_record")
 }

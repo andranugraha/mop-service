@@ -1,6 +1,10 @@
 package user
 
-import "github.com/empnefsi/mop-service/internal/module/merchant"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 const tableName = "user_tab"
 
@@ -12,8 +16,6 @@ type User struct {
 	Ctime      *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime      *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime      *uint64 `json:"dtime"`
-
-	Merchant *merchant.Merchant `gorm:"foreignKey:MerchantId;references:Id" json:"merchant,omitempty"`
 }
 
 func (u *User) TableName() string {
@@ -46,4 +48,17 @@ func (u *User) GetMerchantId() uint64 {
 		return *u.MerchantId
 	}
 	return 0
+}
+
+func (u *User) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	u.Ctime = &now
+	u.Mtime = &now
+	return nil
+}
+
+func (u *User) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	u.Mtime = &now
+	return nil
 }
