@@ -22,7 +22,7 @@ func (i *impl) GetMerchantByCode(ctx context.Context, code string) (*Merchant, e
 	}
 
 	if merchant == nil {
-		return nil, constant.ErrFailedToGetMerchant
+		return nil, constant.ErrItemNotFound
 	}
 
 	err = i.cacheStore.SetMerchant(ctx, merchant)
