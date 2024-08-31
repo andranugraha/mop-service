@@ -2,13 +2,10 @@ package strings
 
 import "golang.org/x/crypto/bcrypt"
 
-func HashPassword(password string) (string, error) {
+func HashPassword(password string) string {
 	// Generate a salted hash of the password using bcrypt
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.MaxCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedPassword), nil
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hashedPassword)
 }
 
 // CheckPasswordHash compares a plain text password with a hashed password

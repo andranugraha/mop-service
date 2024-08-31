@@ -1,19 +1,22 @@
 package itemvariant
 
-import "github.com/empnefsi/mop-service/internal/module/itemvariantoption"
+import (
+	"github.com/empnefsi/mop-service/internal/module/itemvariantoption"
+	"gorm.io/gorm"
+	"time"
+)
 
 const tableName = "item_variant_tab"
 
 type ItemVariant struct {
-	Id          *uint64 `gorm:"primaryKey" json:"id"`
-	ItemId      *uint64 `json:"item_id"`
-	Name        *string `json:"name"`
-	IsRequired  *uint   `json:"is_required"`
-	SelectCount *uint32 `json:"select_count"`
-	SelectType  *uint   `json:"select_type"`
-	Ctime       *uint64 `gorm:"autoCreateTime" json:"ctime"`
-	Mtime       *uint64 `gorm:"autoUpdateTime" json:"mtime"`
-	Dtime       *uint64 `json:"dtime"`
+	Id        *uint64 `gorm:"primaryKey" json:"id"`
+	ItemId    *uint64 `json:"item_id"`
+	Name      *string `json:"name"`
+	MinSelect *uint32 `json:"min_select"`
+	MaxSelect *uint32 `json:"max_select"`
+	Ctime     *uint64 `gorm:"autoCreateTime" json:"ctime"`
+	Mtime     *uint64 `gorm:"autoUpdateTime" json:"mtime"`
+	Dtime     *uint64 `json:"dtime"`
 
 	Options []*itemvariantoption.ItemVariantOption `gorm:"foreignKey:ItemVariantId;references:Id" json:"options"`
 }
@@ -43,27 +46,33 @@ func (i *ItemVariant) GetItemId() uint64 {
 	return 0
 }
 
-func (i *ItemVariant) GetIsRequired() uint {
-	if i.IsRequired != nil {
-		return *i.IsRequired
+func (i *ItemVariant) GetMinSelect() uint32 {
+	if i.MinSelect != nil {
+		return *i.MinSelect
 	}
 	return 0
 }
 
-func (i *ItemVariant) GetSelectCount() uint32 {
-	if i.SelectCount != nil {
-		return *i.SelectCount
-	}
-	return 0
-}
-
-func (i *ItemVariant) GetSelectType() uint {
-	if i.SelectType != nil {
-		return *i.SelectType
+func (i *ItemVariant) GetMaxSelect() uint32 {
+	if i.MaxSelect != nil {
+		return *i.MaxSelect
 	}
 	return 0
 }
 
 func (i *ItemVariant) GetOptions() []*itemvariantoption.ItemVariantOption {
 	return i.Options
+}
+
+func (i *ItemVariant) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *ItemVariant) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
+	return nil
 }

@@ -1,8 +1,12 @@
 package table
 
-import "github.com/empnefsi/mop-service/internal/config"
+import (
+	"context"
+	"github.com/empnefsi/mop-service/internal/config"
+)
 
 type Module interface {
+	GetTable(ctx context.Context, id uint64) (*Table, error)
 }
 
 type impl struct {

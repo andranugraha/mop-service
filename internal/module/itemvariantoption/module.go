@@ -1,4 +1,4 @@
-package itemvariant
+package itemvariantoption
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 )
 
 type Module interface {
-	GetActiveItemVariantsByIDs(ctx context.Context, ids []uint64) ([]*ItemVariant, error)
+	GetActiveItemVariantOptionsByIDs(ctx context.Context, ids []uint64) ([]*ItemVariantOption, error)
 }
 
 type impl struct {

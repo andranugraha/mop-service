@@ -1,5 +1,10 @@
 package invoiceorder
 
+import (
+	"gorm.io/gorm"
+	"time"
+)
+
 const tableName = "invoice_order_tab"
 
 type InvoiceOrder struct {
@@ -34,4 +39,17 @@ func (i *InvoiceOrder) GetInvoiceId() uint64 {
 		return *i.InvoiceId
 	}
 	return 0
+}
+
+func (i *InvoiceOrder) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *InvoiceOrder) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
+	return nil
 }

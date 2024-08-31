@@ -12,7 +12,8 @@ var globalDB *gorm.DB
 func initDatabase() error {
 	connectionURL := dbURL
 	db, err := gorm.Open(postgres.Open(connectionURL), &gorm.Config{
-		PrepareStmt: true,
+		PrepareStmt:            true,
+		SkipDefaultTransaction: true,
 	})
 	if err != nil {
 		return errors.New("failed to connect to database: " + err.Error())

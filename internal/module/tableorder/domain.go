@@ -1,6 +1,9 @@
 package tableorder
 
-import "github.com/empnefsi/mop-service/internal/module/order"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 const tableName = "table_order_tab"
 
@@ -11,8 +14,6 @@ type TableOrder struct {
 	Ctime   *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime   *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime   *uint64 `json:"dtime"`
-
-	Orders []*order.Order `gorm:"foreignKey:TableId;references:Id" json:"orders"`
 }
 
 func (i *TableOrder) TableName() string {
@@ -40,9 +41,15 @@ func (i *TableOrder) GetOrderId() uint64 {
 	return 0
 }
 
-func (i *TableOrder) GetOrders() []*order.Order {
-	if i.Orders != nil {
-		return i.Orders
-	}
+func (i *TableOrder) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *TableOrder) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
 	return nil
 }

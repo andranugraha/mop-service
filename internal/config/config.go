@@ -77,3 +77,7 @@ func GetTokenExpiry() int {
 func GetTokenSecret() string {
 	return tokenSecret
 }
+
+func GetDBURL() string {
+	return dbURL
+}

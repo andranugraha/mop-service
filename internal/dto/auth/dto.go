@@ -6,9 +6,5 @@ type LoginRequest struct {
 }
 
 type LoginResponse struct {
-	Data LoginResponseData `json:"data"`
-}
-
-type LoginResponseData struct {
 	Token string `json:"token"`
 }

@@ -1,6 +1,10 @@
 package itemcategory
 
-import "github.com/empnefsi/mop-service/internal/module/item"
+import (
+	"github.com/empnefsi/mop-service/internal/module/item"
+	"gorm.io/gorm"
+	"time"
+)
 
 const tableName = "item_category_tab"
 
@@ -42,4 +46,17 @@ func (i *ItemCategory) GetMerchantId() uint64 {
 
 func (i *ItemCategory) GetItems() []*item.Item {
 	return i.Items
+}
+
+func (i *ItemCategory) BeforeCreate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
+	return nil
+}
+
+func (i *ItemCategory) BeforeUpdate(tx *gorm.DB) error {
+	now := uint64(time.Now().Unix())
+	i.Mtime = &now
+	return nil
 }

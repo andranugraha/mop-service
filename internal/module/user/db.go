@@ -19,6 +19,7 @@ func (d *db) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 			return db.Select("id, code, name")
 		}).
 		Where("email = ?", email).
+		Where("dtime is null").
 		Take(&user).
 		Error
 	if err != nil {

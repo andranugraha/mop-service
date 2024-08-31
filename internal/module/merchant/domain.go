@@ -1,6 +1,11 @@
 package merchant
 
 import (
+	"github.com/empnefsi/mop-service/internal/module/additionalfee"
+	"github.com/empnefsi/mop-service/internal/module/itemcategory"
+	"github.com/empnefsi/mop-service/internal/module/paymenttype"
+	"github.com/empnefsi/mop-service/internal/module/table"
+	"github.com/empnefsi/mop-service/internal/module/user"
 	"google.golang.org/protobuf/proto"
 	"gorm.io/gorm"
 	"math/rand"
@@ -17,6 +22,12 @@ type Merchant struct {
 	Ctime *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime *uint64 `json:"dtime"`
+
+	Users          []*user.User                   `gorm:"foreignKey:MerchantId;references:Id" json:"users"`
+	PaymentTypes   []*paymenttype.PaymentType     `gorm:"foreignKey:MerchantId;references:Id" json:"payment_types"`
+	AdditionalFees []*additionalfee.AdditionalFee `gorm:"foreignKey:MerchantId;references:Id" json:"additional_fees"`
+	Tables         []*table.Table                 `gorm:"foreignKey:MerchantId;references:Id" json:"tables"`
+	ItemCategories []*itemcategory.ItemCategory   `gorm:"foreignKey:MerchantId;references:Id" json:"item_categories"`
 }
 
 func (m *Merchant) TableName() string {
@@ -76,7 +87,6 @@ func generateMerchantCode(name string) string {
 	return initials + string(randomChars)
 }
 
-// BeforeCreate is a GORM hook that runs before a record is created in the database
 func (m *Merchant) BeforeCreate(tx *gorm.DB) (err error) {
 	for {
 		m.Code = proto.String(generateMerchantCode(m.GetName()))
@@ -86,5 +96,15 @@ func (m *Merchant) BeforeCreate(tx *gorm.DB) (err error) {
 			break
 		}
 	}
+
+	now := uint64(time.Now().Unix())
+	m.Ctime = &now
+	m.Mtime = &now
+	return nil
+}
+
+func (m *Merchant) BeforeUpdate(tx *gorm.DB) (err error) {
+	now := uint64(time.Now().Unix())
+	m.Mtime = &now
 	return nil
 }
