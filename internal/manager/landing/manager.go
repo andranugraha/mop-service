@@ -4,10 +4,6 @@ import (
 	"context"
 
 	"github.com/empnefsi/mop-service/internal/dto/landing"
-	"github.com/empnefsi/mop-service/internal/module/item"
-	"github.com/empnefsi/mop-service/internal/module/itemcategory"
-	"github.com/empnefsi/mop-service/internal/module/itemvariant"
-	"github.com/empnefsi/mop-service/internal/module/itemvariantoption"
 	"github.com/empnefsi/mop-service/internal/module/merchant"
 )
 
@@ -16,17 +12,11 @@ type Manager interface {
 }
 
 type impl struct {
-	merchantModule          merchant.Module
-	itemcategoryModule      itemcategory.Module
-	itemModule              item.Module
-	itemvariantModule       itemvariant.Module
-	itemvariantoptionModule itemvariantoption.Module
+	merchantModule merchant.Module
 }
 
 func NewManager() Manager {
 	return &impl{
-		merchantModule:     merchant.GetModule(),
-		itemcategoryModule: itemcategory.GetModule(),
-		itemModule:         item.GetModule(),
+		merchantModule: merchant.GetModule(),
 	}
 }
