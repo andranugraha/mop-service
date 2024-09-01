@@ -17,34 +17,42 @@ func (m *impl) Landing(ctx context.Context, code string) (*landing.LandingRespon
 		return nil, constant.ErrItemNotFound
 	}
 
-	itemCategoriesData, err := m.itemcategoryModule.GetItemCategoriesByMerchantId(ctx, merchantData.GetId())
-	if err != nil {
-		return nil, err
-	}
+	itemCategories := make([]landing.ItemCategory, len(merchantData.GetItemCategories()))
+	for i, category := range merchantData.GetItemCategories() {
+		items := make([]landing.Item, len(category.GetItems()))
 
-	itemCategories := make([]landing.ItemCategory, len(itemCategoriesData))
-	for i, itemCategoryData := range itemCategoriesData {
-		itemCategories[i] = landing.ItemCategory{
-			Name:     itemCategoryData.GetName(),
-			Priority: itemCategoryData.GetPriority(),
-		}
+		for j, item := range category.GetItems() {
+			itemVariants := make([]landing.ItemVariant, len(item.GetVariants()))
 
-		itemsData, err := m.itemModule.GetActiveItemsByCategoryId(ctx, itemCategoryData.GetId())
-		if err != nil {
-			return nil, err
-		}
+			for k, variant := range item.GetVariants() {
+				itemVariantOptions := make([]landing.ItemVariantOption, len(variant.GetOptions()))
 
-		items := make([]landing.Item, len(itemsData))
-		for j, itemData := range itemsData {
+				for l, option := range variant.GetOptions() {
+					itemVariantOptions[l] = landing.ItemVariantOption{
+						Name:  option.GetName(),
+						Price: option.GetPrice(),
+					}
+				}
+				itemVariants[k] = landing.ItemVariant{
+					Name:               variant.GetName(),
+					MinSelect:          variant.GetMinSelect(),
+					MaxSelect:          variant.GetMaxSelect(),
+					ItemVariantOptions: itemVariantOptions,
+				}
+			}
 			items[j] = landing.Item{
-				Name:        itemData.GetName(),
-				Description: itemData.GetDescription(),
-				Price:       itemData.GetPrice(),
-				Priority:    itemData.GetPriority(),
+				Name:         item.GetName(),
+				Description:  item.GetDescription(),
+				Price:        item.GetPrice(),
+				Priority:     item.GetPriority(),
+				ItemVariants: itemVariants,
 			}
 		}
-
-		itemCategories[i].Items = items
+		itemCategories[i] = landing.ItemCategory{
+			Name:     category.GetName(),
+			Priority: category.GetPriority(),
+			Items:    items,
+		}
 	}
 
 	return &landing.LandingResponseData{

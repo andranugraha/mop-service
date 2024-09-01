@@ -15,6 +15,10 @@ type db struct {
 func (d *db) GetMerchantByCode(ctx context.Context, code string) (*Merchant, error) {
 	var merchant Merchant
 	err := d.client.
+		Preload("ItemCategories", "dtime IS NULL").
+		Preload("ItemCategories.Items", "dtime IS NULL").
+		Preload("ItemCategories.Items.Variants", "dtime IS NULL").
+		Preload("ItemCategories.Items.Variants.Options", "dtime IS NULL").
 		Where("code = ?", code).
 		Take(&merchant).
 		Error
@@ -28,7 +32,6 @@ func (d *db) GetMerchantByCode(ctx context.Context, code string) (*Merchant, err
 	}
 
 	return &merchant, nil
-
 }
 
 func (d *db) GetMerchantByID(ctx context.Context, id uint64) (*Merchant, error) {
