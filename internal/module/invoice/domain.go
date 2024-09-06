@@ -29,6 +29,7 @@ type Invoice struct {
 	Code           *string `json:"code"`
 	AdditionalFees []byte  `json:"additional_fees"`
 	TotalPayment   *uint64 `json:"total_payment"`
+	PaymentProof   *string `json:"payment_proof"`
 	Status         *uint32 `json:"status"`
 	Ctime          *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime          *uint64 `gorm:"autoUpdateTime" json:"mtime"`
@@ -96,6 +97,13 @@ func (i *Invoice) GetTotalPayment() uint64 {
 func (i *Invoice) GetStatus() uint32 {
 	if i.Status != nil {
 		return *i.Status
+	}
+	return 0
+}
+
+func (i *Invoice) GetCtime() uint64 {
+	if i.Ctime != nil {
+		return *i.Ctime
 	}
 	return 0
 }

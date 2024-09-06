@@ -23,6 +23,13 @@ var (
 	cacheItemCategoryExpiry      int
 	cacheItemVariantExpiry       int
 	cacheItemVariantOptionExpiry int
+
+	// S3 Digital Ocean
+	spaceKey    string
+	spaceSecret string
+	spaceRegion string
+	spaceName   string
+	spaceURL    string
 )
 
 func init() {
@@ -41,6 +48,13 @@ func init() {
 	cacheItemCategoryExpiry = getEnvInt("CACHE_ITEM_CATEGORY_EXPIRY", 3600)
 	cacheItemVariantExpiry = getEnvInt("CACHE_ITEM_VARIANT_EXPIRY", 3600)
 	cacheItemVariantOptionExpiry = getEnvInt("CACHE_ITEM_VARIANT_OPTION_EXPIRY", 3600)
+
+	// S3 Digital Ocean
+	spaceKey = getEnv("SPACE_KEY", "")
+	spaceSecret = getEnv("SPACE_SECRET", "")
+	spaceRegion = getEnv("SPACE_REGION", "")
+	spaceName = getEnv("SPACE_NAME", "")
+	spaceURL = getEnv("SPACE_URL", "")
 }
 
 func getEnv(key string, def string) string {
@@ -65,6 +79,7 @@ func Init() error {
 	initConfigFuncs := []func() error{
 		initCache,
 		initDatabase,
+		initS3,
 	}
 
 	for _, initConfigFunc := range initConfigFuncs {
@@ -123,4 +138,8 @@ func GetCacheItemVariantOptionExpiry() int {
 
 func GetTimeout() int {
 	return timeout
+}
+
+func GetSpaceName() string {
+	return spaceName
 }

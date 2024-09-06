@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"github.com/empnefsi/mop-service/internal/module/invoice"
 
 	dto "github.com/empnefsi/mop-service/internal/dto/order"
 	"github.com/empnefsi/mop-service/internal/module/item"
@@ -14,6 +15,7 @@ import (
 
 type Manager interface {
 	CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*dto.CreateOrderResponse, error)
+	PayOrder(ctx context.Context, req *dto.PayOrderRequest) (*dto.PayOrderResponse, error)
 }
 
 type impl struct {
@@ -23,6 +25,7 @@ type impl struct {
 	itemModule              item.Module
 	itemVariantModule       itemvariant.Module
 	itemVariantOptionModule itemvariantoption.Module
+	invoiceModule           invoice.Module
 }
 
 func NewManager() Manager {
@@ -33,5 +36,6 @@ func NewManager() Manager {
 		itemModule:              item.GetModule(),
 		itemVariantModule:       itemvariant.GetModule(),
 		itemVariantOptionModule: itemvariantoption.GetModule(),
+		invoiceModule:           invoice.GetModule(),
 	}
 }

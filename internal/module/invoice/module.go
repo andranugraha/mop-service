@@ -1,8 +1,15 @@
 package invoice
 
-import "github.com/empnefsi/mop-service/internal/config"
+import (
+	"context"
+	"github.com/empnefsi/mop-service/internal/config"
+	"gorm.io/gorm"
+)
 
-type Module interface{}
+type Module interface {
+	GetInvoiceByID(ctx context.Context, id uint64) (*Invoice, error)
+	UpdateInvoiceTx(ctx context.Context, tx *gorm.DB, invoice *Invoice) error
+}
 
 type impl struct {
 	dbStore *db

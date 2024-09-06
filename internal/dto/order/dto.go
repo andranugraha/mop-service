@@ -1,5 +1,7 @@
 package order
 
+import "mime/multipart"
+
 type CreateOrderRequest struct {
 	MerchantID    uint64 `json:"merchant_id" validate:"required"`
 	TableID       uint64 `json:"table_id" validate:"required"`
@@ -14,6 +16,16 @@ type CreateOrderResponse struct {
 	Total     uint64 `json:"total"`
 	PaymentQR string `json:"payment_qr"`
 	DueTime   uint64 `json:"due_time"`
+}
+
+type PayOrderRequest struct {
+	OrderID        uint64                `form:"order_id" validate:"required"`
+	ProofOfPayment *multipart.FileHeader `form:"proof_of_payment" validate:"required"`
+}
+
+type PayOrderResponse struct {
+	InvoiceID   uint64 `json:"invoice_id"`
+	InvoiceCode string `json:"invoice_code"`
 }
 
 type Item struct {
