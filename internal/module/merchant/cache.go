@@ -106,3 +106,56 @@ func (c *cache) SetMerchant(ctx context.Context, merchant *Merchant) error {
 
 	return nil
 }
+
+func (c *cache) GetMerchantOverview(ctx context.Context, code string) (*Merchant, error) {
+	KEY := "merchant_overview:" + code
+	merchant := &Merchant{}
+
+	val, err := c.client.Get(ctx, KEY).Result()
+	if err == redis.Nil {
+		logger.Info(
+			ctx, "fetch_merchant_overview_from_cache", "merchant not found in cache, fetching from db",
+		)
+		return nil, nil
+	}
+	if err != nil {
+		logger.Error(
+			ctx, "fetch_merchant_overview_from_cache", "failed to get merchant overview: %v", err,
+		)
+		return nil, err
+	}
+
+	err = json.Unmarshal([]byte(val), &merchant)
+	if err != nil {
+		logger.Error(
+			ctx, "fetch_merchant_overview_from_cache", "failed to unmarshal merchant overview: %v", err,
+		)
+		return nil, err
+	}
+
+	return merchant, nil
+}
+
+func (c *cache) SetMerchantOverview(ctx context.Context, code string, merchant *Merchant) error {
+	key := "merchant_overview:" + code
+
+	val, err := json.Marshal(merchant)
+	if err != nil {
+		logger.Error(
+			ctx, "set_merchant_overview_to_cache", "failed to marshal merchant overview: %v", err,
+		)
+		return err
+	}
+
+	expiryInSeconds := config.GetCacheMerchantExpiry()
+	expiryDuration := time.Duration(expiryInSeconds) * time.Second
+	err = c.client.Set(ctx, key, val, expiryDuration).Err()
+	if err != nil {
+		logger.Error(
+			ctx, "set_merchant_overview_to_cache", "failed to set merchant overview: %v", err,
+		)
+		return err
+	}
+
+	return nil
+}

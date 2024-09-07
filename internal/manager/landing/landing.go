@@ -12,7 +12,7 @@ import (
 )
 
 func (m *impl) Landing(ctx context.Context, code string) (*landing.LandingResponseData, error) {
-	merchantData, err := m.merchantModule.GetMerchantByCode(ctx, code)
+	merchantData, err := m.merchantModule.GetMerchantOverview(ctx, code)
 	if err != nil {
 		return nil, err
 	}

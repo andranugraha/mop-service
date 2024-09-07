@@ -12,19 +12,26 @@ type db struct {
 	client *gorm.DB
 }
 
-func (d *db) GetMerchantByCode(ctx context.Context, code string) (*Merchant, error) {
+func (d *db) GetMerchantOverview(ctx context.Context, code string) (*Merchant, error) {
 	var merchant Merchant
 	err := d.client.
-		Preload("ItemCategories", "dtime IS NULL").
-		Preload("ItemCategories.Items", "dtime IS NULL").
+		Preload("ItemCategories", func(db *gorm.DB) *gorm.DB {
+			return db.Where("dtime IS NULL").Order("priority ASC")
+		}).
+		Preload("ItemCategories.Items", func(db *gorm.DB) *gorm.DB {
+			return db.Where("dtime IS NULL").Order("priority ASC")
+		}).
 		Preload("ItemCategories.Items.Variants", "dtime IS NULL").
 		Preload("ItemCategories.Items.Variants.Options", "dtime IS NULL").
 		Where("code = ?", code).
+		Where("dtime is null").
 		Take(&merchant).
 		Error
 
 	if err != nil {
-		logger.Error(ctx, "fetch_merchant_from_db", "failed to fetch merchant: %v", err.Error())
+		logger.Error(
+			ctx, "fetch_merchant_overview_from_db", "failed to fetch merchant: %v", err.Error(),
+		)
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil
 		}
