@@ -18,6 +18,7 @@ func (d *db) GetItemCategoriesByMerchantId(
 	var itemCategories []*ItemCategory
 	err := d.client.
 		Where("merchant_id = ?", merchantID).
+		Where("dtime IS NULL").
 		Order("priority DESC").
 		Find(&itemCategories).
 		Error

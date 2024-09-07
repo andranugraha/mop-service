@@ -52,6 +52,7 @@ func (d *db) GetActiveItemsByCategoryId(ctx context.Context, categoryID uint64) 
 	var items []*Item
 	err := d.client.
 		Where("item_category_id = ?", categoryID).
+		Where("dtime is null").
 		Order("priority DESC").
 		Find(&items).Error
 	if err != nil {

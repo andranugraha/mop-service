@@ -40,7 +40,7 @@ func (c *cache) SetItemCategoriesByMerchantId(
 		})
 	}
 
-	expiryInSeconds := config.GetCacheUserExpiry()
+	expiryInSeconds := config.GetCacheItemCategoryExpiry()
 	expiryDuration := time.Duration(expiryInSeconds) * time.Second
 	pipe.Expire(ctx, key, expiryDuration)
 

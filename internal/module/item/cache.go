@@ -123,12 +123,12 @@ func (c *cache) SetActiveItemsByCategoryId(
 		}
 
 		pipe.ZAdd(ctx, key, &redis.Z{
-			Score:  float64(*item.Priority),
+			Score:  float64(item.GetPriority()),
 			Member: jsonValue,
 		})
 	}
 
-	expiryInSeconds := config.GetCacheUserExpiry()
+	expiryInSeconds := config.GetCacheItemExpiry()
 	expiryDuration := time.Duration(expiryInSeconds) * time.Second
 	pipe.Expire(ctx, key, expiryDuration)
 
