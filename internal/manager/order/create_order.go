@@ -3,9 +3,11 @@ package order
 import (
 	"context"
 	"encoding/json"
-	"sync"
-
 	"github.com/empnefsi/mop-service/internal/module/invoice"
+	"github.com/empnefsi/mop-service/internal/module/paymentgateway"
+	"github.com/empnefsi/mop-service/internal/module/paymenttype"
+	"sync"
+	"time"
 
 	"github.com/empnefsi/mop-service/internal/common/constant"
 	"github.com/empnefsi/mop-service/internal/common/logger"
@@ -21,6 +23,11 @@ import (
 )
 
 func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*dto.CreateOrderResponse, error) {
+	if req.PaymentMethod != paymenttype.PaymentTypeQR {
+		logger.Error(ctx, "CreateOrder", constant.ErrOrderPaymentMethodNotSupported.Error())
+		return nil, constant.ErrOrderPaymentMethodNotSupported
+	}
+
 	merchant, err := m.merchantModule.GetMerchantByID(ctx, req.MerchantID)
 	if err != nil {
 		return nil, err
@@ -83,14 +90,10 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 		return nil, constant.ErrOrderTotalPriceMismatch
 	}
 
-	var (
-		paymentQR string
-		paymentID uint64
-	)
+	var paymentID uint64
 	for _, paymentType := range merchant.GetPaymentTypes() {
 		if paymentType.GetType() == req.PaymentMethod {
 			paymentID = paymentType.GetId()
-			paymentQR = paymentType.GetQRPaymentTypeExtraData().ImageURL
 			break
 		}
 	}
@@ -100,8 +103,10 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 		logger.Error(ctx, "CreateOrder", "failed to marshal additional fees: %v", err.Error())
 		return nil, constant.ErrInternalServer
 	}
+
+	todayLatestInvoice, _ := m.invoiceModule.GetTodayLatestInvoice(ctx, req.MerchantID)
 	invoiceData := &invoice.Invoice{
-		Code:           proto.String(merchant.GetCode()),
+		Code:           proto.String(invoice.GenerateInvoiceCode(merchant.GetCode(), todayLatestInvoice)),
 		MerchantId:     proto.Uint64(req.MerchantID),
 		PaymentTypeId:  proto.Uint64(paymentID),
 		TotalPayment:   proto.Uint64(grandTotal),
@@ -118,20 +123,37 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 		Invoice:    invoiceData,
 	}
 	logger.Data(ctx, "CreateOrder", "order", orderData)
+
+	now := time.Now()
+	chargePayment, err := paymentgateway.GetModule().ChargePayment(ctx, &paymentgateway.PaymentRequest{
+		PaymentType: paymentgateway.PaymentTypeQRIS,
+		TransactionDetails: paymentgateway.TransactionDetails{
+			OrderID:     invoiceData.GetCode(),
+			GrossAmount: int(grandTotal),
+		},
+		CustomExpiry: &paymentgateway.CustomExpiry{
+			ExpiryDuration: 15,
+			Unit:           "minute",
+			OrderTime:      now.Format("2006-01-02 15:04:05 -0700"),
+		},
+	})
+	if err != nil {
+		logger.Error(ctx, "CreateOrder", constant.ErrOrderGeneratePayment.Error())
+		return nil, constant.ErrOrderGeneratePayment
+	}
+
 	err = m.orderModule.CreateOrder(ctx, orderData)
 	if err != nil {
 		logger.Error(ctx, "CreateOrder", "failed to create order: %v", err.Error())
 		return nil, constant.ErrInternalServer
 	}
 
-	dueTime := orderData.GetCtime() + 300 // 5 minutes
-
 	return &dto.CreateOrderResponse{
 		OrderID:   orderData.GetId(),
 		OrderCode: invoiceData.GetCode(),
 		Total:     grandTotal,
-		PaymentQR: paymentQR,
-		DueTime:   dueTime,
+		PaymentQR: chargePayment.Actions[0].URL,
+		DueTime:   uint64(now.Add(15 * time.Minute).Unix()),
 	}, nil
 }
 

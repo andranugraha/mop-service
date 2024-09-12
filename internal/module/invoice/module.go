@@ -9,6 +9,7 @@ import (
 type Module interface {
 	GetInvoiceByID(ctx context.Context, id uint64) (*Invoice, error)
 	UpdateInvoiceTx(ctx context.Context, tx *gorm.DB, invoice *Invoice) error
+	GetTodayLatestInvoice(ctx context.Context, merchantID uint64) (*Invoice, error)
 }
 
 type impl struct {

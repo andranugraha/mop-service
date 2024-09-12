@@ -29,7 +29,7 @@ type impl struct {
 }
 
 func NewManager() Manager {
-	return &impl{
+	manager := &impl{
 		merchantModule:          merchant.GetModule(),
 		orderModule:             order.GetModule(),
 		tableModule:             table.GetModule(),
@@ -38,4 +38,5 @@ func NewManager() Manager {
 		itemVariantOptionModule: itemvariantoption.GetModule(),
 		invoiceModule:           invoice.GetModule(),
 	}
+	return manager
 }

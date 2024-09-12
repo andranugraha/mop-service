@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	"github.com/empnefsi/mop-service/internal/module/invoice"
-
 	"gorm.io/gorm"
 )
 
@@ -49,6 +48,7 @@ func (d *db) UpdateOrder(ctx context.Context, order *Order) error {
 		err := tx.Save(order).Error
 		if err != nil {
 			tx.Rollback()
+			logger.Error(ctx, "update_order", "failed to update order: %v", err.Error())
 			return err
 		}
 
@@ -56,6 +56,7 @@ func (d *db) UpdateOrder(ctx context.Context, order *Order) error {
 			err = d.invoiceModule.UpdateInvoiceTx(ctx, tx, invoiceData)
 			if err != nil {
 				tx.Rollback()
+				logger.Error(ctx, "update_order", "failed to update invoice: %v", err.Error())
 				return err
 			}
 		}

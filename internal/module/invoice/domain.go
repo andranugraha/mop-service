@@ -2,12 +2,9 @@ package invoice
 
 import (
 	"encoding/json"
-	"errors"
 	"strconv"
 	"strings"
 	"time"
-
-	"google.golang.org/protobuf/proto"
 
 	"github.com/empnefsi/mop-service/internal/module/merchant"
 	"github.com/empnefsi/mop-service/internal/module/paymenttype"
@@ -108,13 +105,13 @@ func (i *Invoice) GetCtime() uint64 {
 	return 0
 }
 
-func (i *Invoice) generateInvoiceCode(latestInvoice *Invoice) string {
+func GenerateInvoiceCode(merchantCode string, latestInvoice *Invoice) string {
 	var (
 		prefix              string
 		latestInvoiceNumber int
 	)
+
 	if latestInvoice == nil {
-		merchantCode := i.GetCode()
 		now := time.Now()
 		date := now.Format("060102")
 		prefix = merchantCode + date
@@ -130,27 +127,9 @@ func (i *Invoice) generateInvoiceCode(latestInvoice *Invoice) string {
 }
 
 func (i *Invoice) BeforeCreate(tx *gorm.DB) error {
-	var todayLatestInvoice *Invoice
-	now := time.Now()
-	startOfDay := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
-	err := tx.
-		Select("id, code").
-		Where("merchant_id = ?", i.GetMerchantId()).
-		Where("status != ?", StatusCancelled).
-		Where("dtime is null").
-		Where("ctime >= ?", startOfDay.Unix()).
-		Last(&todayLatestInvoice).Error
-	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			return err
-		}
-		todayLatestInvoice = nil
-	}
-
-	i.Code = proto.String(i.generateInvoiceCode(todayLatestInvoice))
-	nowUnix := uint64(now.Unix())
-	i.Ctime = &nowUnix
-	i.Mtime = &nowUnix
+	now := uint64(time.Now().Unix())
+	i.Ctime = &now
+	i.Mtime = &now
 	return nil
 }
 

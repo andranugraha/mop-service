@@ -9,7 +9,6 @@ import (
 	"github.com/empnefsi/mop-service/internal/module/invoice"
 	"github.com/empnefsi/mop-service/internal/module/order"
 	"google.golang.org/protobuf/proto"
-	"time"
 )
 
 func (m *impl) PayOrder(ctx context.Context, req *dto.PayOrderRequest) (*dto.PayOrderResponse, error) {
@@ -23,12 +22,12 @@ func (m *impl) PayOrder(ctx context.Context, req *dto.PayOrderRequest) (*dto.Pay
 		return nil, constant.ErrOrderOrInvoiceStatusInvalid
 	}
 
-	now := uint64(time.Now().Unix())
-	dueTime := orderData.GetInvoice().GetCtime() + (5 * 60)
-	if now > dueTime {
-		logger.Error(ctx, "pay_order", "invoice expired, order_id: %d, invoice_id: %d", req.OrderID, orderData.GetInvoice().GetId())
-		return nil, constant.ErrOrderInvoiceExpired
-	}
+	//now := uint64(time.Now().Unix())
+	//dueTime := orderData.GetInvoice().GetCtime() + (5 * 60)
+	//if now > dueTime {
+	//	logger.Error(ctx, "pay_order", "invoice expired, order_id: %d, invoice_id: %d", req.OrderID, orderData.GetInvoice().GetId())
+	//	return nil, constant.ErrOrderInvoiceExpired
+	//}
 
 	merchantData, err := m.merchantModule.GetMerchantByID(ctx, orderData.GetMerchantId())
 	if err != nil {

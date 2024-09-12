@@ -30,6 +30,10 @@ var (
 	spaceRegion string
 	spaceName   string
 	spaceURL    string
+
+	// Midtrans
+	midtransURL       string
+	midtransServerKey string
 )
 
 func init() {
@@ -55,6 +59,10 @@ func init() {
 	spaceRegion = getEnv("SPACE_REGION", "")
 	spaceName = getEnv("SPACE_NAME", "")
 	spaceURL = getEnv("SPACE_URL", "")
+
+	// Midtrans
+	midtransURL = getEnv("MIDTRANS_URL", "")
+	midtransServerKey = getEnv("MIDTRANS_SERVER_KEY", "")
 }
 
 func getEnv(key string, def string) string {
@@ -142,4 +150,12 @@ func GetTimeout() int {
 
 func GetSpaceName() string {
 	return spaceName
+}
+
+func GetMidtransURL() string {
+	return midtransURL
+}
+
+func GetMidtransServerKey() string {
+	return midtransServerKey
 }
