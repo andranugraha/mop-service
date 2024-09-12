@@ -8,6 +8,17 @@ const (
 	PaymentTypeQRIS = "qris"
 )
 
+const (
+	UnitDay    = "day"
+	UnitHour   = "hour"
+	UnitMinute = "minute"
+	UnitSecond = "second"
+)
+
+const (
+	TransactionStatusSettlement = "settlement"
+)
+
 type PaymentRequest struct {
 	PaymentType        string             `json:"payment_type"`
 	TransactionDetails TransactionDetails `json:"transaction_details"`

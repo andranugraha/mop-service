@@ -11,6 +11,7 @@ type Module interface {
 	CreateOrder(ctx context.Context, order *Order) error
 	GetFullOrderDataByID(ctx context.Context, id uint64) (*Order, error)
 	UpdateOrder(ctx context.Context, order *Order) error
+	GetOrderByInvoiceID(ctx context.Context, invoiceId uint64) (*Order, error)
 }
 
 type impl struct {

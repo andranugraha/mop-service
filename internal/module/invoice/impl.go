@@ -35,3 +35,16 @@ func (m *impl) GetTodayLatestInvoice(ctx context.Context, merchantID uint64) (*I
 
 	return invoiceData, nil
 }
+
+func (m *impl) GetInvoiceByCode(ctx context.Context, code string) (*Invoice, error) {
+	invoiceData, err := m.dbStore.GetInvoiceByCode(ctx, code)
+	if err != nil {
+		return nil, err
+	}
+
+	if invoiceData == nil {
+		return nil, constant.ErrOrderInvoiceNotFound
+	}
+
+	return invoiceData, nil
+}

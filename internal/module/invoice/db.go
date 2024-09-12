@@ -54,3 +54,19 @@ func (d *db) GetTodayLatestInvoice(ctx context.Context, merchantID uint64) (*Inv
 	}
 	return &invoice, nil
 }
+
+func (d *db) GetInvoiceByCode(ctx context.Context, code string) (*Invoice, error) {
+	var invoice Invoice
+	err := d.client.
+		Where("code = ?", code).
+		Where("dtime is null").
+		Take(&invoice).Error
+	if err != nil {
+		logger.Error(ctx, "fetch_invoice_from_db", "failed to fetch invoice: %v", err.Error())
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &invoice, nil
+}

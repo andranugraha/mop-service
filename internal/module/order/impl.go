@@ -25,3 +25,16 @@ func (m *impl) GetFullOrderDataByID(ctx context.Context, id uint64) (*Order, err
 func (m *impl) UpdateOrder(ctx context.Context, order *Order) error {
 	return m.dbStore.UpdateOrder(ctx, order)
 }
+
+func (m *impl) GetOrderByInvoiceID(ctx context.Context, invoiceId uint64) (*Order, error) {
+	orderData, err := m.dbStore.GetOrderByInvoiceID(ctx, invoiceId)
+	if err != nil {
+		return nil, err
+	}
+
+	if orderData == nil {
+		return nil, constant.ErrOrderNotFound
+	}
+
+	return orderData, nil
+}

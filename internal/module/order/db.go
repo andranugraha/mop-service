@@ -16,6 +16,7 @@ type db struct {
 func (d *db) CreateOrder(ctx context.Context, order *Order) error {
 	return d.client.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Create(order).Error; err != nil {
+			logger.Error(ctx, "create_order", "failed to create order: %v", err.Error())
 			return err
 		}
 		return nil
@@ -64,4 +65,20 @@ func (d *db) UpdateOrder(ctx context.Context, order *Order) error {
 		order.Invoice = invoiceData
 		return nil
 	})
+}
+
+func (d *db) GetOrderByInvoiceID(ctx context.Context, invoiceID uint64) (*Order, error) {
+	var order Order
+	err := d.client.
+		Where("invoice_id = ?", invoiceID).
+		Where("dtime is null").
+		Take(&order).Error
+	if err != nil {
+		logger.Error(ctx, "fetch_order_from_db", "failed to fetch order: %v", err.Error())
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+	return &order, nil
 }

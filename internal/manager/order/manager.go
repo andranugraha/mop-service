@@ -16,6 +16,7 @@ import (
 type Manager interface {
 	CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*dto.CreateOrderResponse, error)
 	PayOrder(ctx context.Context, req *dto.PayOrderRequest) (*dto.PayOrderResponse, error)
+	PaymentCallback(ctx context.Context, req *dto.PaymentCallbackRequest) error
 }
 
 type impl struct {
