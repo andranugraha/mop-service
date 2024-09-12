@@ -9,4 +9,6 @@ func registerOrderRoutes(router fiber.Router) {
 	orderHandler := order.NewHandler()
 	orderRouter := router.Group("/order")
 	orderRouter.Post("", orderHandler.CreateOrder)
+	orderRouter.Post("/pay", orderHandler.PayOrder)
+	orderRouter.Post("/payment-callback", orderHandler.PaymentCallback)
 }

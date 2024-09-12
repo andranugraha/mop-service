@@ -2,6 +2,7 @@ package order
 
 import (
 	"context"
+	"github.com/empnefsi/mop-service/internal/module/invoice"
 
 	dto "github.com/empnefsi/mop-service/internal/dto/order"
 	"github.com/empnefsi/mop-service/internal/module/item"
@@ -14,6 +15,8 @@ import (
 
 type Manager interface {
 	CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*dto.CreateOrderResponse, error)
+	PayOrder(ctx context.Context, req *dto.PayOrderRequest) (*dto.PayOrderResponse, error)
+	PaymentCallback(ctx context.Context, req *dto.PaymentCallbackRequest) error
 }
 
 type impl struct {
@@ -23,15 +26,18 @@ type impl struct {
 	itemModule              item.Module
 	itemVariantModule       itemvariant.Module
 	itemVariantOptionModule itemvariantoption.Module
+	invoiceModule           invoice.Module
 }
 
 func NewManager() Manager {
-	return &impl{
+	manager := &impl{
 		merchantModule:          merchant.GetModule(),
 		orderModule:             order.GetModule(),
 		tableModule:             table.GetModule(),
 		itemModule:              item.GetModule(),
 		itemVariantModule:       itemvariant.GetModule(),
 		itemVariantOptionModule: itemvariantoption.GetModule(),
+		invoiceModule:           invoice.GetModule(),
 	}
+	return manager
 }
