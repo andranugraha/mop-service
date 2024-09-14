@@ -11,6 +11,7 @@ import (
 
 type Manager interface {
 	GetMerchantActivePaymentTypes(ctx context.Context, merchantID uint64) (*dto.GetMerchantActivePaymentTypesResponse, error)
+	GetMerchantActiveAdditionalFees(ctx context.Context, merchantID uint64) (*dto.GetMerchantActiveAdditionalFeesResponse, error)
 }
 
 type impl struct {
@@ -49,5 +50,31 @@ func (m *impl) GetMerchantActivePaymentTypes(ctx context.Context, merchantID uin
 
 	return &dto.GetMerchantActivePaymentTypesResponse{
 		PaymentTypes: activePaymentTypes,
+	}, nil
+}
+
+func (m *impl) GetMerchantActiveAdditionalFees(ctx context.Context, merchantID uint64) (*dto.GetMerchantActiveAdditionalFeesResponse, error) {
+	additionalFees, err := m.additionalFeeModule.GetActiveAdditionalFeesByMerchantID(ctx, merchantID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(additionalFees) == 0 {
+		logger.Error(ctx, "get_merchant_active_additional_fees", "no additional fees found for merchant %d", merchantID)
+		return nil, nil
+	}
+
+	activeAdditionalFees := make([]*dto.AdditionalFee, 0)
+	for _, additionalFee := range additionalFees {
+		activeAdditionalFees = append(activeAdditionalFees, &dto.AdditionalFee{
+			Name:        additionalFee.GetName(),
+			Description: additionalFee.GetDescription(),
+			Type:        additionalFee.GetType(),
+			Fee:         additionalFee.GetFee(),
+		})
+	}
+
+	return &dto.GetMerchantActiveAdditionalFeesResponse{
+		AdditionalFees: activeAdditionalFees,
 	}, nil
 }

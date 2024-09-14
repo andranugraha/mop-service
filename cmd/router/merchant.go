@@ -9,4 +9,5 @@ func registerMerchantRoutes(router fiber.Router) {
 	merchantHandler := merchant.NewHandler()
 	merchantRouter := router.Group("/merchant")
 	merchantRouter.Get("/:merchant_id/payment-types", merchantHandler.GetMerchantActivePaymentTypes)
+	merchantRouter.Get("/:merchant_id/additional-fees", merchantHandler.GetMerchantActiveAdditionalFees)
 }
