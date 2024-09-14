@@ -14,4 +14,5 @@ func RegisterRoutes(app *fiber.App) {
 	registerPingRoutes(v1)
 	registerAuthRoutes(v1)
 	registerOrderRoutes(v1)
+	registerMerchantRoutes(v1)
 }

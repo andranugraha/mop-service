@@ -1,8 +1,13 @@
 package paymenttype
 
-import "github.com/empnefsi/mop-service/internal/config"
+import (
+	"context"
+	"github.com/empnefsi/mop-service/internal/config"
+)
 
-type Module interface{}
+type Module interface {
+	GetActivePaymentTypesByMerchantID(ctx context.Context, merchantID uint64) ([]*PaymentType, error)
+}
 
 type impl struct {
 	cacheStore *cache

@@ -21,7 +21,9 @@ func (i *impl) GetUserByEmail(ctx context.Context, email string) (*User, error) 
 		return nil, constant.ErrInvalidIdentifierOrPassword
 	}
 
-	_ = i.cacheStore.SetUser(ctx, user)
+	go func() {
+		_ = i.cacheStore.SetUser(ctx, user)
+	}()
 
 	return user, nil
 }
