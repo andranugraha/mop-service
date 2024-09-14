@@ -5,12 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"time"
+
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	"github.com/empnefsi/mop-service/internal/common/strings"
 	"github.com/empnefsi/mop-service/internal/config"
-	"io/ioutil"
-	"net/http"
-	"time"
 )
 
 func (m *impl) ChargePayment(ctx context.Context, req *PaymentRequest) (*PaymentResponse, error) {
@@ -40,7 +41,7 @@ func (m *impl) ChargePayment(ctx context.Context, req *PaymentRequest) (*Payment
 
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
-		body, _ := ioutil.ReadAll(response.Body)
+		body, _ := io.ReadAll(response.Body)
 		logger.Error(ctx, "ChargePayment", "unexpected status code: %d, body: %s", response.StatusCode, string(body))
 		return nil, fmt.Errorf("unexpected status code: %d, body: %s", response.StatusCode, string(body))
 	}

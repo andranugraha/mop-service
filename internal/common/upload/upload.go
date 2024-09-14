@@ -3,13 +3,14 @@ package upload
 import (
 	"bytes"
 	"fmt"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/empnefsi/mop-service/internal/config"
 	"io"
 	"mime/multipart"
 	"path/filepath"
 	"strings"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/empnefsi/mop-service/internal/config"
 )
 
 func File(file *multipart.FileHeader, filename, path string) (*string, error) {

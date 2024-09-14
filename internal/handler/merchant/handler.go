@@ -1,11 +1,12 @@
 package merchant
 
 import (
+	"strconv"
+
 	"github.com/empnefsi/mop-service/internal/common/constant"
 	"github.com/empnefsi/mop-service/internal/common/response"
 	"github.com/empnefsi/mop-service/internal/manager/merchant"
 	"github.com/gofiber/fiber/v2"
-	"strconv"
 )
 
 type Handler interface {
