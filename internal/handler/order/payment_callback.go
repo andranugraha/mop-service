@@ -43,8 +43,8 @@ func (h *impl) PushPaymentEvent(c *fiber.Ctx) error {
 		close(ch)
 	}()
 
-	for msg := range ch {
-		c.Response().BodyWriter().Write([]byte("data: " + msg + "\n\n"))
+	if msg, ok := <-ch; ok {
+		c.Write([]byte("data: " + msg + "\n\n"))
 	}
 
 	return nil
