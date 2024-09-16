@@ -9,6 +9,7 @@ type Handler interface {
 	CreateOrder(c *fiber.Ctx) error
 	PayOrder(c *fiber.Ctx) error
 	PaymentCallback(c *fiber.Ctx) error
+	PushPaymentEvent(c *fiber.Ctx) error
 }
 
 type impl struct {

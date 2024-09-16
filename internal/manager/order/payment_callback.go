@@ -40,5 +40,33 @@ func (m *impl) PaymentCallback(ctx context.Context, req *dto.PaymentCallbackRequ
 		return err
 	}
 
+	go m.PushPaymentEvent(ctx, orderData.GetId(), "Payment has been received")
 	return nil
+}
+
+func (m *impl) PushPaymentEvent(ctx context.Context, orderId uint64, message string) {
+	m.clientsMutex.Lock()
+	defer m.clientsMutex.Unlock()
+	if ch, ok := m.clients[orderId]; ok {
+		logger.Info(ctx, "push_payment_event", "pushing message to order id %d: %s", orderId, message)
+		ch <- message
+	}
+}
+
+func (m *impl) RegisterPaymentEvent(ctx context.Context, orderId uint64) chan string {
+	m.clientsMutex.Lock()
+	defer m.clientsMutex.Unlock()
+
+	logger.Info(ctx, "register_payment_event", "registering order id %d", orderId)
+	ch := make(chan string)
+	m.clients[orderId] = ch
+	return ch
+}
+
+func (m *impl) UnregisterPaymentEvent(ctx context.Context, orderId uint64) {
+	m.clientsMutex.Lock()
+	defer m.clientsMutex.Unlock()
+
+	logger.Info(ctx, "unregister_payment_event", "unregistering order id %d", orderId)
+	delete(m.clients, orderId)
 }
