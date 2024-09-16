@@ -3,6 +3,7 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/empnefsi/mop-service/internal/common/constant"
@@ -20,6 +21,10 @@ func TrafficWrapperMiddleware(c *fiber.Ctx) error {
 			logger.Panic(ctx, "panic: %v", r)
 		}
 	}()
+
+	if strings.Contains(c.Path(), "push-payment-event") {
+		return c.Next()
+	}
 
 	ctx = tracing.NewContextWithTracingID(ctx)
 	tracingId := tracing.GetTracingIDFromCtx(ctx)

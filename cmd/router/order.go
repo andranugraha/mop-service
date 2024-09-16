@@ -11,4 +11,5 @@ func registerOrderRoutes(router fiber.Router) {
 	orderRouter.Post("", orderHandler.CreateOrder)
 	orderRouter.Post("/pay", orderHandler.PayOrder)
 	orderRouter.Post("/payment-callback", orderHandler.PaymentCallback)
+	orderRouter.Get("/:order_id/push-payment-event", orderHandler.PushPaymentEvent)
 }
