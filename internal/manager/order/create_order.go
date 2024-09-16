@@ -163,9 +163,9 @@ func extractIds(items []dto.Item) (itemIds, variantIds, variantOptionIds []uint6
 }
 
 // calculateAdditionalFees calculates extra charges based on the merchant's fee policies
-func (m *impl) calculateAdditionalFees(fees []*additionalfee.AdditionalFee, basePrice uint64) (extraCharge uint64, additionalFees []*additionalfee.AdditionalFee, err error) {
+func (m *impl) calculateAdditionalFees(fees []*additionalfee.AdditionalFee, basePrice uint64) (extraCharge uint64, additionalFees []*invoice.AdditionalFee, err error) {
 	for _, fee := range fees {
-		data := &additionalfee.AdditionalFee{
+		data := &invoice.AdditionalFee{
 			Id:   fee.Id,
 			Type: fee.Type,
 			Name: fee.Name,
@@ -173,11 +173,11 @@ func (m *impl) calculateAdditionalFees(fees []*additionalfee.AdditionalFee, base
 		}
 		switch fee.GetType() {
 		case additionalfee.AdditionalFeeTypeFixed:
-			data.Fee = proto.Uint64(fee.GetFee())
+			data.Amount = proto.Uint64(fee.GetFee())
 			extraCharge += fee.GetFee()
 		case additionalfee.AdditionalFeeTypePercentage:
 			charge := basePrice * fee.GetFee() / 100
-			data.Fee = proto.Uint64(charge)
+			data.Amount = proto.Uint64(charge)
 			extraCharge += charge
 		}
 		additionalFees = append(additionalFees, data)
