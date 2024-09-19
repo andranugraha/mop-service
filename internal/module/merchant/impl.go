@@ -6,6 +6,32 @@ import (
 	"github.com/empnefsi/mop-service/internal/common/constant"
 )
 
+func (i *impl) GetMerchantOverview(ctx context.Context, code string) (*Merchant, error) {
+	merchant, err := i.cacheStore.GetMerchantOverview(ctx, code)
+	if err != nil {
+		return nil, err
+	}
+
+	if merchant != nil {
+		return merchant, nil
+	}
+
+	merchant, err = i.dbStore.GetMerchantOverview(ctx, code)
+	if err != nil {
+		return nil, err
+	}
+
+	if merchant == nil {
+		return nil, constant.ErrItemNotFound
+	}
+
+	go func() {
+		err = i.cacheStore.SetMerchant(ctx, merchant)
+	}()
+
+	return merchant, nil
+}
+
 func (i *impl) GetMerchantByID(ctx context.Context, id uint64) (*Merchant, error) {
 	merchant, _ := i.cacheStore.GetMerchantByID(ctx, id)
 	if merchant != nil {

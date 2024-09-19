@@ -13,6 +13,7 @@ type ItemCategory struct {
 	Id         *uint64 `gorm:"primaryKey" json:"id"`
 	MerchantId *uint64 `json:"merchant_id"`
 	Name       *string `json:"name"`
+	Priority   *int32  `json:"priority"`
 	Ctime      *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime      *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime      *uint64 `json:"dtime"`
@@ -36,6 +37,13 @@ func (i *ItemCategory) GetName() string {
 		return *i.Name
 	}
 	return ""
+}
+
+func (i *ItemCategory) GetPriority() int32 {
+	if i.Priority != nil {
+		return *i.Priority
+	}
+	return 0
 }
 
 func (i *ItemCategory) GetMerchantId() uint64 {

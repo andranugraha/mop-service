@@ -45,3 +45,28 @@ func (i *impl) GetActiveItemsByIDs(ctx context.Context, ids []uint64) ([]*Item, 
 	items = append(items, dbItems...)
 	return items, nil
 }
+
+func (i *impl) GetActiveItemsByCategoryId(
+	ctx context.Context, categoryID uint64,
+) ([]*Item, error) {
+	items, err := i.cacheStore.GetActiveItemsByCategoryId(ctx, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(items) > 0 {
+		return items, nil
+	}
+
+	items, err = i.dbStore.GetActiveItemsByCategoryId(ctx, categoryID)
+	if err != nil {
+		return nil, err
+	}
+
+	err = i.cacheStore.SetActiveItemsByCategoryId(ctx, categoryID, items)
+	if err != nil {
+		return nil, err
+	}
+
+	return items, nil
+}

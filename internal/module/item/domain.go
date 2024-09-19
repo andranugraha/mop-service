@@ -15,6 +15,7 @@ type Item struct {
 	Name           *string `json:"name"`
 	Description    *string `json:"description"`
 	Price          *uint64 `json:"price"`
+	Priority       *int32  `json:"priority"`
 	Ctime          *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime          *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime          *uint64 `json:"dtime"`
@@ -50,6 +51,13 @@ func (i *Item) GetDescription() string {
 func (i *Item) GetPrice() uint64 {
 	if i.Price != nil {
 		return *i.Price
+	}
+	return 0
+}
+
+func (i *Item) GetPriority() int32 {
+	if i.Priority != nil {
+		return *i.Priority
 	}
 	return 0
 }

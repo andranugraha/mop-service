@@ -84,6 +84,13 @@ func (m *Merchant) GetPaymentTypes() []*paymenttype.PaymentType {
 	return nil
 }
 
+func (m *Merchant) GetItemCategories() []*itemcategory.ItemCategory {
+	if m.ItemCategories != nil {
+		return m.ItemCategories
+	}
+	return nil
+}
+
 func generateMerchantCode(name string) string {
 	words := strings.Fields(name)
 	var initials string

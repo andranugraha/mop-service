@@ -13,6 +13,7 @@ func RegisterRoutes(app *fiber.App) {
 	v1 := app.Group("/api/v1")
 	registerPingRoutes(v1)
 	registerAuthRoutes(v1)
+	registerLandingRoutes(v1)
 	registerOrderRoutes(v1)
 	registerMerchantRoutes(v1)
 }

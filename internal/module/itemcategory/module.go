@@ -1,8 +1,14 @@
 package itemcategory
 
-import "github.com/empnefsi/mop-service/internal/config"
+import (
+	"context"
 
-type Module interface{}
+	"github.com/empnefsi/mop-service/internal/config"
+)
+
+type Module interface {
+	GetItemCategoriesByMerchantId(ctx context.Context, merchantId uint64) ([]*ItemCategory, error)
+}
 
 type impl struct {
 	cacheStore *cache

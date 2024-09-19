@@ -28,6 +28,9 @@ func main() {
 	}
 	fmt.Println("Database connected successfully!")
 
+	fmt.Println("Cleaning database...")
+	cleanDatabase(db)
+
 	fmt.Println("Initializing merchant data...")
 	merchantData := merchant.Merchant{
 		Name: proto.String("Patua Kopi"),
@@ -86,27 +89,32 @@ func main() {
 	fmt.Println("Inserting item category data...")
 	merchantData.ItemCategories = []*itemcategory.ItemCategory{
 		{
-			Name: proto.String("Appetizer"),
+			Name:     proto.String("Appetizer"),
+			Priority: proto.Int32(3),
 			Items: []*item.Item{
 				{
 					Name:        proto.String("French Fries"),
 					Description: proto.String("Crispy and delicious"),
 					Price:       proto.Uint64(35000),
+					Priority:    proto.Int32(1),
 				},
 				{
 					Name:        proto.String("Onion Rings"),
 					Description: proto.String("Crispy and delicious"),
 					Price:       proto.Uint64(30000),
+					Priority:    proto.Int32(2),
 				},
 			},
 		},
 		{
-			Name: proto.String("Main Course"),
+			Name:     proto.String("Main Course"),
+			Priority: proto.Int32(2),
 			Items: []*item.Item{
 				{
 					Name:        proto.String("Nasi Goreng"),
 					Description: proto.String("Spicy and delicious"),
 					Price:       proto.Uint64(45000),
+					Priority:    proto.Int32(1),
 					Variants: []*itemvariant.ItemVariant{
 						{
 							Name:      proto.String("Spicy Level"),
@@ -137,6 +145,7 @@ func main() {
 					Name:        proto.String("Mie Goreng"),
 					Description: proto.String("Spicy and delicious"),
 					Price:       proto.Uint64(45000),
+					Priority:    proto.Int32(2),
 					Variants: []*itemvariant.ItemVariant{
 						{
 							Name:      proto.String("Spicy Level"),
@@ -167,6 +176,7 @@ func main() {
 					Name:        proto.String("Seblak"),
 					Description: proto.String("Spicy and delicious"),
 					Price:       proto.Uint64(40000),
+					Priority:    proto.Int32(3),
 					Variants: []*itemvariant.ItemVariant{
 						{
 							Name:      proto.String("Add On"),
@@ -196,12 +206,14 @@ func main() {
 			},
 		},
 		{
-			Name: proto.String("Drinks"),
+			Name:     proto.String("Drinks"),
+			Priority: proto.Int32(1),
 			Items: []*item.Item{
 				{
 					Name:        proto.String("Teh"),
 					Description: proto.String("Refreshing and delicious"),
 					Price:       proto.Uint64(5000),
+					Priority:    proto.Int32(1),
 					Variants: []*itemvariant.ItemVariant{
 						{
 							Name:      proto.String("Type"),
@@ -243,6 +255,7 @@ func main() {
 					Name:        proto.String("Americano"),
 					Description: proto.String("Refreshing and delicious"),
 					Price:       proto.Uint64(20000),
+					Priority:    proto.Int32(2),
 					Variants: []*itemvariant.ItemVariant{
 						{
 							Name:      proto.String("Type"),
@@ -319,4 +332,30 @@ func getDBInstance() *gorm.DB {
 	}
 
 	return db
+}
+
+func cleanDatabase(db *gorm.DB) {
+	fmt.Println("Cleaning tables...")
+	tables := []string{
+		"item_variant_option_tab",
+		"item_variant_tab",
+		"order_item_tab",
+		"item_tab",
+		"item_category_tab",
+		"table_order_tab",
+		"table_tab",
+		"payment_type_tab",
+		"additional_fee_tab",
+		"user_tab",
+		"order_tab",
+		"merchant_tab",
+	}
+
+	for _, table := range tables {
+		err := db.Exec(fmt.Sprintf("DELETE FROM %s", table)).Error
+		if err != nil {
+			panic(errors.New("failed to clean table " + table + ": " + err.Error()))
+		}
+	}
+	fmt.Println("Tables cleaned successfully!")
 }

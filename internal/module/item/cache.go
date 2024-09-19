@@ -4,13 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/empnefsi/mop-service/internal/common/logger"
+	"github.com/empnefsi/mop-service/internal/config"
 	"github.com/go-redis/redis/v8"
 )
 
 type cache struct {
 	client *redis.Client
+}
+
+func (c *cache) getItemsByCategoryIdKey(categoryId uint64) string {
+	return fmt.Sprintf("item:category:%d", categoryId)
 }
 
 func (c *cache) getItemKey(id uint64) string {
@@ -101,4 +107,63 @@ func (c *cache) SetManyActiveItems(ctx context.Context, items []*Item) error {
 	}
 
 	return nil
+}
+
+func (c *cache) SetActiveItemsByCategoryId(
+	ctx context.Context, categoryId uint64, items []*Item,
+) error {
+	key := c.getItemsByCategoryIdKey(categoryId)
+
+	pipe := c.client.Pipeline()
+	for _, item := range items {
+		jsonValue, err := json.Marshal(item)
+		if err != nil {
+			logger.Error(ctx, "set_items_to_cache", "failed to marshal item: %v", err)
+			return err
+		}
+
+		pipe.ZAdd(ctx, key, &redis.Z{
+			Score:  float64(item.GetPriority()),
+			Member: jsonValue,
+		})
+	}
+
+	expiryInSeconds := config.GetCacheItemExpiry()
+	expiryDuration := time.Duration(expiryInSeconds) * time.Second
+	pipe.Expire(ctx, key, expiryDuration)
+
+	_, err := pipe.Exec(ctx)
+	if err != nil {
+		logger.Error(ctx, "set_items_to_cache", "failed to set items: %v", err)
+		return err
+	}
+
+	logger.Data(ctx, "set_items_to_cache", "items set to cache: %v", items)
+	return nil
+}
+
+func (c *cache) GetActiveItemsByCategoryId(
+	ctx context.Context, categoryId uint64,
+) ([]*Item, error) {
+	key := c.getItemsByCategoryIdKey(categoryId)
+	jsonValues, err := c.client.ZRevRange(ctx, key, 0, -1).Result()
+
+	if err != nil {
+		logger.Error(ctx, "fetch_items_from_cache", "failed to fetch items: %v", err)
+		return nil, err
+	}
+
+	items := make([]*Item, 0, len(jsonValues))
+	for _, jsonValue := range jsonValues {
+		item := &Item{}
+		err = json.Unmarshal([]byte(jsonValue), item)
+		if err != nil {
+			logger.Warn(ctx, "fetch_items_from_cache", "failed to unmarshal item: %v", err)
+			continue
+		}
+		items = append(items, item)
+	}
+
+	logger.Data(ctx, "fetch_items_from_cache", "items fetched from cache: %v", items)
+	return items, nil
 }
