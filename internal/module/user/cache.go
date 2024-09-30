@@ -73,6 +73,6 @@ func (c *cache) SetUser(ctx context.Context, user *User) error {
 		return err
 	}
 
-	logger.Data(ctx, "set_user_to_cache", "user: %+v", user)
+	logger.Data(ctx, "set_user_to_cache", user, nil)
 	return nil
 }

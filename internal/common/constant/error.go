@@ -6,6 +6,7 @@ var (
 	ErrInvalidIdentifierOrPassword = fmt.Errorf("invalid identifier or password")
 	ErrInvalidParam                = fmt.Errorf("invalid param")
 	ErrInternalServer              = fmt.Errorf("internal server error")
+	ErrUnauthorized                = fmt.Errorf("unauthorized")
 	ErrItemNotFound                = fmt.Errorf("one or more items may not exist or have been removed")
 	ErrMerchantNotFound            = fmt.Errorf("merchant not found")
 	ErrTableNotFound               = fmt.Errorf("table not found")
@@ -26,6 +27,7 @@ const (
 	ErrCodeInternalServer = int32(10000)
 	ErrCodeInvalidParam   = int32(10001)
 	ErrCodeTimeout        = int32(10002)
+	ErrCodeUnauthorized   = int32(10003)
 
 	ErrCodeOrderPriceMismatch            = int32(11000)
 	ErrCodeOrderTableAndMerchantMismatch = int32(11001)

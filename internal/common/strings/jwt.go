@@ -12,6 +12,7 @@ type Claims struct {
 	UserID     uint64 `json:"user_id"`
 	Email      string `json:"email"`
 	MerchantID uint64 `json:"merchant_id"`
+	Role       uint32 `json:"role"`
 	jwt.RegisteredClaims
 }
 

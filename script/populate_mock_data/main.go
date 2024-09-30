@@ -41,6 +41,7 @@ func main() {
 		{
 			Email:    proto.String("admin@gmail.com"),
 			Password: proto.String(strings.HashPassword("admin")),
+			Role:     proto.Uint32(user.RoleAdmin),
 		},
 	}
 

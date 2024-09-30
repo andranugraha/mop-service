@@ -42,5 +42,6 @@ func (i *impl) generateToken(payload *user.User) (string, error) {
 		UserID:     payload.GetId(),
 		Email:      payload.GetEmail(),
 		MerchantID: payload.GetMerchantId(),
+		Role:       payload.GetRole(),
 	})
 }

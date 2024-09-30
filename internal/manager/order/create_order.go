@@ -25,56 +25,32 @@ import (
 )
 
 func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*dto.CreateOrderResponse, error) {
-	// Validate payment method
-	if req.PaymentMethod != paymenttype.PaymentTypeQR {
-		logger.Error(ctx, "CreateOrder", constant.ErrOrderPaymentMethodNotSupported.Error())
-		return nil, constant.ErrOrderPaymentMethodNotSupported
-	}
-
-	// Fetch merchant and table info
-	merchant, err := m.merchantModule.GetMerchantByID(ctx, req.MerchantID)
+	// Fetch merchantData and table info
+	merchantData, err := m.merchantModule.GetMerchantByID(ctx, req.MerchantID)
 	if err != nil {
-		logger.Error(ctx, "CreateOrder", "failed to get merchant: %v", err)
+		logger.Error(ctx, "CreateOrder", "failed to get merchantData: %v", err)
 		return nil, err
 	}
 
-	table, err := m.tableModule.GetTableByID(ctx, req.TableID)
+	// Get payment ID
+	paymentID, err := m.getPaymentID(merchantData.GetPaymentTypes(), req.PaymentMethod)
 	if err != nil {
-		logger.Error(ctx, "CreateOrder", "failed to get table: %v", err)
+		logger.Error(ctx, "CreateOrder", "failed to get payment ID: %v", err)
 		return nil, err
 	}
 
-	// Validate table and merchant association
-	if table.GetMerchantId() != req.MerchantID {
-		logger.Error(ctx, "CreateOrder", constant.ErrOrderTableAndMerchantMismatch.Error())
-		return nil, constant.ErrOrderTableAndMerchantMismatch
+	isDineIn := req.OrderType == order.TypeDineIn
+	if !isDineIn {
+		if err = m.validateTable(ctx, *req.TableID, req.MerchantID); err != nil {
+			return nil, err
+		}
 	}
 
-	// Extract item, variant, and option IDs
-	itemIds, variantIds, variantOptionIds := extractIds(req.Items)
-
-	// Fetch data for items, variants, and options concurrently
-	itemMap, itemVariantMap, variantOptionMap, err := m.fetchData(ctx, itemIds, variantIds, variantOptionIds)
-	if err != nil {
-		logger.Error(ctx, "CreateOrder", "failed to fetch item data: %v", err)
-		return nil, err
-	}
-
-	// Validate fetched data
-	if len(itemMap) != len(itemIds) || len(itemVariantMap) != len(variantIds) || len(variantOptionMap) != len(variantOptionIds) {
-		logger.Error(ctx, "CreateOrder", constant.ErrItemNotFound.Error())
-		return nil, constant.ErrItemNotFound
-	}
-
-	// Construct order items and calculate base price
-	orderItems, basePrice, err := m.constructOrderItems(req.Items, itemMap, itemVariantMap, variantOptionMap)
-	if err != nil {
-		logger.Error(ctx, "CreateOrder", "failed to create order items: %v", err)
-		return nil, err
-	}
+	// Fetch and build order items
+	orderItems, basePrice, err := m.fetchAndBuildOrderItems(ctx, req.Items)
 
 	// Calculate additional fees and grand total
-	extraCharge, additionalFees, err := m.calculateAdditionalFees(merchant.GetAdditionalFees(), basePrice)
+	extraCharge, additionalFees, err := m.calculateAdditionalFees(merchantData.GetAdditionalFees(), basePrice)
 	if err != nil {
 		logger.Error(ctx, "CreateOrder", "failed to calculate additional fees: %v", err)
 		return nil, err
@@ -86,13 +62,6 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 		return nil, constant.ErrOrderTotalPriceMismatch
 	}
 
-	// Get payment ID
-	paymentID, err := m.getPaymentID(merchant.GetPaymentTypes(), req.PaymentMethod)
-	if err != nil {
-		logger.Error(ctx, "CreateOrder", "failed to get payment ID: %v", err)
-		return nil, err
-	}
-
 	// Marshal additional fees into JSON
 	additionalFeeJSON, err := json.Marshal(additionalFees)
 	if err != nil {
@@ -101,18 +70,26 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 	}
 
 	// Generate invoice code and create invoice data
-	todayLatestInvoice, _ := m.invoiceModule.GetTodayLatestInvoice(ctx, req.MerchantID)
-	invoiceData := m.buildInvoiceData(merchant, todayLatestInvoice, paymentID, grandTotal, additionalFeeJSON)
+	invoiceData := m.buildInvoiceData(ctx, merchantData, paymentID, grandTotal, additionalFeeJSON)
 
 	// Create order data
 	orderData := m.buildOrderData(req, basePrice, orderItems, invoiceData)
 	logger.Data(ctx, "CreateOrder", "order", orderData)
 
-	// Charge payment via gateway
-	chargePayment, err := m.chargePayment(ctx, invoiceData.GetCode(), grandTotal)
-	if err != nil {
-		logger.Error(ctx, "CreateOrder", constant.ErrOrderGeneratePayment.Error())
-		return nil, constant.ErrOrderGeneratePayment
+	var (
+		chargePayment *paymentgateway.PaymentResponse
+		dueTime       *uint64
+	)
+	isPaymentTypeCashier := req.PaymentMethod == paymenttype.PaymentTypeCashier
+	if !isPaymentTypeCashier {
+		dueTime = proto.Uint64(uint64(time.Now().Add(15 * time.Minute).Unix()))
+
+		// Charge payment via gateway
+		chargePayment, err = m.chargePayment(ctx, invoiceData.GetCode(), grandTotal, req.PaymentMethod)
+		if err != nil {
+			logger.Error(ctx, "CreateOrder", constant.ErrOrderGeneratePayment.Error())
+			return nil, constant.ErrOrderGeneratePayment
+		}
 	}
 
 	// Create order in the system
@@ -123,13 +100,15 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 	}
 
 	// Return response with payment info
-	return &dto.CreateOrderResponse{
+	res := &dto.CreateOrderResponse{
 		OrderID:   orderData.GetId(),
 		OrderCode: invoiceData.GetCode(),
 		Total:     grandTotal,
-		PaymentQR: chargePayment.Actions[0].URL,
-		DueTime:   uint64(time.Now().Add(15 * time.Minute).Unix()),
-	}, nil
+		PaymentQR: chargePayment.GetQRURL(),
+		DueTime:   dueTime,
+	}
+
+	return res, nil
 }
 
 func extractIds(items []dto.Item) (itemIds, variantIds, variantOptionIds []uint64) {
@@ -196,7 +175,8 @@ func (m *impl) getPaymentID(paymentTypes []*paymenttype.PaymentType, paymentMeth
 }
 
 // buildInvoiceData creates and returns invoice data
-func (m *impl) buildInvoiceData(merchant *merchant.Merchant, latestInvoice *invoice.Invoice, paymentID, grandTotal uint64, additionalFees []byte) *invoice.Invoice {
+func (m *impl) buildInvoiceData(ctx context.Context, merchant *merchant.Merchant, paymentID, grandTotal uint64, additionalFees []byte) *invoice.Invoice {
+	latestInvoice, _ := m.invoiceModule.GetTodayLatestInvoice(ctx, merchant.GetId())
 	return &invoice.Invoice{
 		Code:           proto.String(invoice.GenerateInvoiceCode(merchant.GetCode(), latestInvoice)),
 		MerchantId:     proto.Uint64(merchant.GetId()),
@@ -211,19 +191,20 @@ func (m *impl) buildInvoiceData(merchant *merchant.Merchant, latestInvoice *invo
 func (m *impl) buildOrderData(req *dto.CreateOrderRequest, basePrice uint64, orderItems []*orderitem.OrderItem, invoiceData *invoice.Invoice) *order.Order {
 	return &order.Order{
 		MerchantId: proto.Uint64(req.MerchantID),
+		OrderType:  proto.Uint32(req.OrderType),
 		TotalSpend: proto.Uint64(basePrice),
 		Status:     proto.Uint32(order.StatusPending),
 		OrderItems: orderItems,
-		Tables:     []*tableorder.TableOrder{{TableId: proto.Uint64(req.TableID)}},
+		Tables:     []*tableorder.TableOrder{{TableId: req.TableID}},
 		Invoice:    invoiceData,
 	}
 }
 
 // chargePayment handles payment charging via payment gateway
-func (m *impl) chargePayment(ctx context.Context, orderID string, grandTotal uint64) (*paymentgateway.PaymentResponse, error) {
+func (m *impl) chargePayment(ctx context.Context, orderID string, grandTotal uint64, paymentMethod uint32) (*paymentgateway.PaymentResponse, error) {
 	now := time.Now()
 	return paymentgateway.GetModule().ChargePayment(ctx, &paymentgateway.PaymentRequest{
-		PaymentType: paymentgateway.PaymentTypeQRIS,
+		PaymentType: paymentgateway.GetPaymentType(paymentMethod),
 		TransactionDetails: paymentgateway.TransactionDetails{
 			OrderID:     orderID,
 			GrossAmount: int(grandTotal),
@@ -292,6 +273,26 @@ func (m *impl) fetchData(ctx context.Context, itemIds, variantIds, variantOption
 	return itemMap, itemVariantMap, variantOptionMap, nil
 }
 
+func (m *impl) fetchAndBuildOrderItems(ctx context.Context, reqItems []dto.Item) ([]*orderitem.OrderItem, uint64, error) {
+	// Extract item, variant, and option IDs
+	itemIds, variantIds, variantOptionIds := extractIds(reqItems)
+
+	// Fetch data for items, variants, and options concurrently
+	itemMap, itemVariantMap, variantOptionMap, err := m.fetchData(ctx, itemIds, variantIds, variantOptionIds)
+	if err != nil {
+		logger.Error(ctx, "CreateOrder", "failed to fetch item data: %v", err)
+		return nil, 0, err
+	}
+
+	// Validate fetched data
+	if len(itemMap) != len(itemIds) || len(itemVariantMap) != len(variantIds) || len(variantOptionMap) != len(variantOptionIds) {
+		logger.Error(ctx, "CreateOrder", constant.ErrItemNotFound.Error())
+		return nil, 0, constant.ErrItemNotFound
+	}
+
+	return m.constructOrderItems(reqItems, itemMap, itemVariantMap, variantOptionMap)
+}
+
 func (m *impl) constructOrderItems(reqItems []dto.Item, itemMap map[uint64]*item.Item, itemVariantMap map[uint64][]*itemvariant.ItemVariant, variantOptionMap map[uint64][]*itemvariantoption.ItemVariantOption) ([]*orderitem.OrderItem, uint64, error) {
 	var (
 		orderItems = make([]*orderitem.OrderItem, 0, len(reqItems))
@@ -337,4 +338,19 @@ func (m *impl) constructOrderItems(reqItems []dto.Item, itemMap map[uint64]*item
 		basePrice += orderItem.GetTotalPrice()
 	}
 	return orderItems, basePrice, nil
+}
+
+func (m *impl) validateTable(ctx context.Context, tableID, merchantID uint64) error {
+	table, err := m.tableModule.GetTableByID(ctx, tableID)
+	if err != nil {
+		logger.Error(ctx, "CreateOrder", "failed to get table: %v", err)
+		return err
+	}
+
+	// Validate table and merchant association
+	if table.GetMerchantId() != merchantID {
+		logger.Error(ctx, "CreateOrder", constant.ErrOrderTableAndMerchantMismatch.Error())
+		return constant.ErrOrderTableAndMerchantMismatch
+	}
+	return nil
 }

@@ -15,7 +15,7 @@ type db struct {
 func (d *db) GetUserByEmail(ctx context.Context, email string) (*User, error) {
 	var user User
 	err := d.client.
-		Select("id, email, password, merchant_id").
+		Select("id, email, password, merchant_id, role").
 		Where("email = ?", email).
 		Where("dtime is null").
 		Take(&user).

@@ -1,31 +1,37 @@
 package order
 
-import "mime/multipart"
-
 type CreateOrderRequest struct {
-	MerchantID    uint64 `json:"merchant_id" validate:"required"`
-	TableID       uint64 `json:"table_id" validate:"required"`
-	Items         []Item `json:"items" validate:"required"`
-	PaymentMethod uint32 `json:"payment_method"`
-	TotalPrice    uint64 `json:"total_price" validate:"required"`
+	MerchantID    uint64  `json:"merchant_id" validate:"required"`
+	TableID       *uint64 `json:"table_id"`
+	Items         []Item  `json:"items" validate:"required"`
+	PaymentMethod uint32  `json:"payment_method" validate:"required"`
+	TotalPrice    uint64  `json:"total_price" validate:"required"`
+	Guest         Guest   `json:"guest" validate:"required"`
+	OrderType     uint32  `json:"order_type" validate:"required"`
 }
 
 type CreateOrderResponse struct {
-	OrderID   uint64 `json:"order_id"`
-	OrderCode string `json:"order_code"`
-	Total     uint64 `json:"total"`
-	PaymentQR string `json:"payment_qr"`
-	DueTime   uint64 `json:"due_time"`
+	OrderID   uint64  `json:"order_id"`
+	OrderCode string  `json:"order_code"`
+	Total     uint64  `json:"total"`
+	PaymentQR *string `json:"payment_qr"`
+	DueTime   *uint64 `json:"due_time"`
 }
 
 type PayOrderRequest struct {
-	OrderID        uint64                `form:"order_id" validate:"required"`
-	ProofOfPayment *multipart.FileHeader `form:"proof_of_payment" validate:"required"`
+	OrderID uint64 `json:"order_id" validate:"required"`
 }
 
 type PayOrderResponse struct {
-	InvoiceID   uint64 `json:"invoice_id"`
-	InvoiceCode string `json:"invoice_code"`
+	OrderID   uint64 `json:"order_id"`
+	OrderCode string `json:"order_code"`
+	Total     uint64 `json:"total"`
+	Status    uint32 `json:"status"`
+}
+
+type Guest struct {
+	Name  string `json:"name" validate:"required"`
+	Total uint32 `json:"total_of_people" validate:"required"`
 }
 
 type Item struct {

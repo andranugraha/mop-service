@@ -1,11 +1,22 @@
 package paymentgateway
 
+import (
+	"github.com/empnefsi/mop-service/internal/module/paymenttype"
+	"google.golang.org/protobuf/proto"
+)
+
 const (
 	PaymentEndpoint = "/charge"
 )
 
 const (
 	PaymentTypeQRIS = "qris"
+)
+
+var (
+	paymentType = map[uint32]string{
+		paymenttype.PaymentTypeQR: PaymentTypeQRIS,
+	}
 )
 
 const (
@@ -79,4 +90,22 @@ type PaymentResponse struct {
 	QRString          string   `json:"qr_string"`
 	Acquirer          string   `json:"acquirer"`
 	ExpiryTime        string   `json:"expiry_time"`
+}
+
+func GetPaymentType(intPaymentType uint32) string {
+	return paymentType[intPaymentType]
+}
+
+func (p *PaymentResponse) GetQRURL() *string {
+	if p == nil {
+		return nil
+	}
+
+	for _, action := range p.Actions {
+		if action.Name == "generate-qr" {
+			return proto.String(action.URL)
+		}
+	}
+
+	return nil
 }

@@ -20,10 +20,16 @@ const (
 	StatusCancelled
 )
 
+const (
+	TypeDineIn uint32 = iota
+	TypeTakeAway
+)
+
 type Order struct {
 	Id         *uint64 `gorm:"primaryKey" json:"id"`
 	MerchantId *uint64 `json:"merchant_id"`
 	InvoiceId  *uint64 `json:"invoice_id"`
+	OrderType  *uint32 `json:"order_type"`
 	TotalSpend *uint64 `json:"total_spend"`
 	Status     *uint32 `json:"status"`
 	StartTime  *uint64 `json:"start_time"`
@@ -51,6 +57,13 @@ func (i *Order) GetId() uint64 {
 func (i *Order) GetMerchantId() uint64 {
 	if i.MerchantId != nil {
 		return *i.MerchantId
+	}
+	return 0
+}
+
+func (i *Order) GetOrderType() uint32 {
+	if i.OrderType != nil {
+		return *i.OrderType
 	}
 	return 0
 }

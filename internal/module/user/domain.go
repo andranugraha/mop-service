@@ -8,11 +8,17 @@ import (
 
 const tableName = "user_tab"
 
+const (
+	RoleAdmin uint32 = iota + 1
+	RoleCashier
+)
+
 type User struct {
 	Id         *uint64 `gorm:"primaryKey" json:"id"`
 	MerchantId *uint64 `json:"merchant_id"`
 	Email      *string `gorm:"uniqueKey" json:"email"`
 	Password   *string `json:"password"`
+	Role       *uint32 `json:"role"`
 	Ctime      *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime      *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime      *uint64 `json:"dtime"`
@@ -46,6 +52,13 @@ func (u *User) GetPassword() string {
 func (u *User) GetMerchantId() uint64 {
 	if u.MerchantId != nil {
 		return *u.MerchantId
+	}
+	return 0
+}
+
+func (u *User) GetRole() uint32 {
+	if u.Role != nil {
+		return *u.Role
 	}
 	return 0
 }
