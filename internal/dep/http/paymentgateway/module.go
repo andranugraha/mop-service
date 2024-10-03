@@ -12,6 +12,7 @@ var (
 
 type Module interface {
 	ChargePayment(ctx context.Context, req *PaymentRequest) (*PaymentResponse, error)
+	CancelPayment(ctx context.Context, req *CancelPaymentRequest) (*CancelPaymentResponse, error)
 }
 
 type impl struct{}

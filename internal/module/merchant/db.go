@@ -27,7 +27,6 @@ func (d *db) GetMerchantOverview(ctx context.Context, code string) (*Merchant, e
 		Where("dtime is null").
 		Take(&merchant).
 		Error
-
 	if err != nil {
 		logger.Error(
 			ctx, "fetch_merchant_overview_from_db", "failed to fetch merchant: %v", err.Error(),

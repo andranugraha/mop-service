@@ -34,13 +34,20 @@ type Order struct {
 	Status     *uint32 `json:"status"`
 	StartTime  *uint64 `json:"start_time"`
 	EndTime    *uint64 `json:"end_time"`
-	Ctime      *uint64 `gorm:"autoCreateTime" json:"ctime"`
-	Mtime      *uint64 `gorm:"autoUpdateTime" json:"mtime"`
-	Dtime      *uint64 `json:"dtime"`
+	GuestInfo  []byte  `json:"guest_info"`
+
+	Ctime *uint64 `gorm:"autoCreateTime" json:"ctime"`
+	Mtime *uint64 `gorm:"autoUpdateTime" json:"mtime"`
+	Dtime *uint64 `json:"dtime"`
 
 	Tables     []*tableorder.TableOrder `gorm:"foreignKey:OrderId;references:Id" json:"tables"`
 	OrderItems []*orderitem.OrderItem   `gorm:"foreignKey:OrderId;references:Id" json:"order_items"`
 	Invoice    *invoice.Invoice         `gorm:"foreignKey:InvoiceId;references:Id" json:"invoice"`
+}
+
+type GuestInfo struct {
+	Name        string `json:"name"`
+	TotalPerson uint32 `json:"total_person"`
 }
 
 func (i *Order) TableName() string {

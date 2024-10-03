@@ -22,7 +22,6 @@ func (d *db) GetItemCategoriesByMerchantId(
 		Order("priority DESC").
 		Find(&itemCategories).
 		Error
-
 	if err != nil {
 		logger.Error(ctx, "fetch_item_categories_from_db",
 			"failed to fetch item categories: %v", err.Error())

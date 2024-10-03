@@ -61,7 +61,6 @@ func (c *cache) GetItemCategoriesByMerchantId(
 ) ([]*ItemCategory, error) {
 	key := c.getItemCategoryKey(merchantId)
 	jsonValues, err := c.client.ZRevRange(ctx, key, 0, -1).Result()
-
 	if err != nil {
 		logger.Error(ctx, "fetch_item_categories_from_cache",
 			"failed to fetch item categories: %v", err)

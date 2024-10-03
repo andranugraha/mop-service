@@ -3,11 +3,12 @@ package order
 import (
 	"context"
 
+	"github.com/empnefsi/mop-service/internal/dep/http/paymentgateway"
+
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	dto "github.com/empnefsi/mop-service/internal/dto/order"
 	"github.com/empnefsi/mop-service/internal/module/invoice"
 	"github.com/empnefsi/mop-service/internal/module/order"
-	"github.com/empnefsi/mop-service/internal/module/paymentgateway"
 	"google.golang.org/protobuf/proto"
 )
 

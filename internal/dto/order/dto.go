@@ -4,18 +4,18 @@ type CreateOrderRequest struct {
 	MerchantID    uint64  `json:"merchant_id" validate:"required"`
 	TableID       *uint64 `json:"table_id"`
 	Items         []Item  `json:"items" validate:"required"`
-	PaymentMethod uint32  `json:"payment_method" validate:"required"`
+	PaymentMethod uint32  `json:"payment_method"`
 	TotalPrice    uint64  `json:"total_price" validate:"required"`
 	Guest         Guest   `json:"guest" validate:"required"`
-	OrderType     uint32  `json:"order_type" validate:"required"`
+	OrderType     uint32  `json:"order_type"`
 }
 
 type CreateOrderResponse struct {
 	OrderID   uint64  `json:"order_id"`
 	OrderCode string  `json:"order_code"`
 	Total     uint64  `json:"total"`
-	PaymentQR *string `json:"payment_qr"`
-	DueTime   *uint64 `json:"due_time"`
+	PaymentQR *string `json:"payment_qr,omitempty"`
+	DueTime   *uint64 `json:"due_time,omitempty"`
 }
 
 type PayOrderRequest struct {
@@ -31,7 +31,7 @@ type PayOrderResponse struct {
 
 type Guest struct {
 	Name  string `json:"name" validate:"required"`
-	Total uint32 `json:"total_of_people" validate:"required"`
+	Total uint32 `json:"total_person" validate:"required"`
 }
 
 type Item struct {

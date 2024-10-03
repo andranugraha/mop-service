@@ -61,6 +61,48 @@ func (m *impl) ChargePayment(ctx context.Context, req *PaymentRequest) (*Payment
 	return &paymentResponse, nil
 }
 
+func (m *impl) CancelPayment(ctx context.Context, req *CancelPaymentRequest) (*CancelPaymentResponse, error) {
+	cmd := config.GetMidtransURL() + "/" + req.OrderID + CancelPaymentEndpoint
+
+	request, err := http.NewRequest(http.MethodPost, cmd, nil)
+	if err != nil {
+		logger.Error(ctx, "CancelPayment", "failed to create payment request: %v", err.Error())
+		return nil, fmt.Errorf("failed to create payment request: %w", err)
+	}
+
+	request.Header.Set("accept", "application/json")
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Authorization", getAuthHeader())
+
+	client := &http.Client{Timeout: 5 * time.Second}
+	response, err := client.Do(request)
+	if err != nil {
+		logger.Error(ctx, "CancelPayment", "failed to send payment request: %v", err.Error())
+		return nil, fmt.Errorf("failed to send payment request: %w", err)
+	}
+
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK && response.StatusCode != http.StatusCreated {
+		body, _ := io.ReadAll(response.Body)
+		logger.Error(ctx, "CancelPayment", "unexpected status code: %d, body: %s", response.StatusCode, string(body))
+		return nil, fmt.Errorf("unexpected status code: %d, body: %s", response.StatusCode, string(body))
+	}
+
+	var cancelPaymentResponse CancelPaymentResponse
+	err = json.NewDecoder(response.Body).Decode(&cancelPaymentResponse)
+	if err != nil {
+		logger.Error(ctx, "CancelPayment", "failed to decode payment response: %v", err.Error())
+		return nil, fmt.Errorf("failed to decode payment response: %w", err)
+	}
+
+	if cancelPaymentResponse.StatusCode != "200" {
+		logger.Error(ctx, "CancelPayment", "unexpected status code: %s", cancelPaymentResponse.StatusCode)
+		return nil, fmt.Errorf("unexpected status code: %s", cancelPaymentResponse.StatusCode)
+	}
+
+	return &cancelPaymentResponse, nil
+}
+
 func getAuthHeader() string {
 	authKey := config.GetMidtransServerKey() + ":"
 	return "Basic " + strings.Base64Encode([]byte(authKey))

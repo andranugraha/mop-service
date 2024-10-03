@@ -6,18 +6,21 @@ import (
 )
 
 const (
-	PaymentEndpoint = "/charge"
+	PaymentEndpoint       = "/charge"
+	CancelPaymentEndpoint = "/cancel"
 )
 
 const (
 	PaymentTypeQRIS = "qris"
 )
 
-var (
-	paymentType = map[uint32]string{
-		paymenttype.PaymentTypeQR: PaymentTypeQRIS,
-	}
+const (
+	ActionGenerateQRCode = "generate-qr-code"
 )
+
+var paymentType = map[uint32]string{
+	paymenttype.PaymentTypeQR: PaymentTypeQRIS,
+}
 
 const (
 	UnitDay    = "day"
@@ -37,6 +40,10 @@ type PaymentRequest struct {
 	CustomerDetails    *CustomerDetail    `json:"customer_details"`
 	CustomExpiry       *CustomExpiry      `json:"custom_expiry"`
 	QRIS               *QRISDetail        `json:"qris"`
+}
+
+type CancelPaymentRequest struct {
+	OrderID string `json:"order_id"`
 }
 
 type TransactionDetails struct {
@@ -92,6 +99,13 @@ type PaymentResponse struct {
 	ExpiryTime        string   `json:"expiry_time"`
 }
 
+type CancelPaymentResponse struct {
+	StatusCode    string `json:"status_code"`
+	StatusMessage string `json:"status_message"`
+	TransactionID string `json:"transaction_id"`
+	OrderID       string `json:"order_id"`
+}
+
 func GetPaymentType(intPaymentType uint32) string {
 	return paymentType[intPaymentType]
 }
@@ -102,7 +116,7 @@ func (p *PaymentResponse) GetQRURL() *string {
 	}
 
 	for _, action := range p.Actions {
-		if action.Name == "generate-qr" {
+		if action.Name == ActionGenerateQRCode {
 			return proto.String(action.URL)
 		}
 	}

@@ -147,7 +147,6 @@ func (c *cache) GetActiveItemsByCategoryId(
 ) ([]*Item, error) {
 	key := c.getItemsByCategoryIdKey(categoryId)
 	jsonValues, err := c.client.ZRevRange(ctx, key, 0, -1).Result()
-
 	if err != nil {
 		logger.Error(ctx, "fetch_items_from_cache", "failed to fetch items: %v", err)
 		return nil, err

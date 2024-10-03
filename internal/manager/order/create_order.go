@@ -6,11 +6,12 @@ import (
 	"sync"
 	"time"
 
+	"github.com/empnefsi/mop-service/internal/dep/http/paymentgateway"
+
 	"github.com/empnefsi/mop-service/internal/module/additionalfee"
 	"github.com/empnefsi/mop-service/internal/module/invoice"
 	"github.com/empnefsi/mop-service/internal/module/merchant"
 	"github.com/empnefsi/mop-service/internal/module/order"
-	"github.com/empnefsi/mop-service/internal/module/paymentgateway"
 	"github.com/empnefsi/mop-service/internal/module/paymenttype"
 	"github.com/empnefsi/mop-service/internal/module/tableorder"
 
@@ -25,31 +26,29 @@ import (
 )
 
 func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*dto.CreateOrderResponse, error) {
-	// Fetch merchantData and table info
+	// Fetch merchant data and table info
 	merchantData, err := m.merchantModule.GetMerchantByID(ctx, req.MerchantID)
 	if err != nil {
 		logger.Error(ctx, "CreateOrder", "failed to get merchantData: %v", err)
 		return nil, err
 	}
 
-	// Get payment ID
+	// Get payment type ID based on payment method
 	paymentID, err := m.getPaymentID(merchantData.GetPaymentTypes(), req.PaymentMethod)
 	if err != nil {
 		logger.Error(ctx, "CreateOrder", "failed to get payment ID: %v", err)
 		return nil, err
 	}
 
-	isDineIn := req.OrderType == order.TypeDineIn
-	if !isDineIn {
-		if err = m.validateTable(ctx, *req.TableID, req.MerchantID); err != nil {
-			return nil, err
-		}
+	// Validate table
+	if err = m.validateTable(ctx, req.TableID, req.MerchantID); err != nil {
+		return nil, err
 	}
 
 	// Fetch and build order items
 	orderItems, basePrice, err := m.fetchAndBuildOrderItems(ctx, req.Items)
 
-	// Calculate additional fees and grand total
+	// Calculate additional fees and extra charges
 	extraCharge, additionalFees, err := m.calculateAdditionalFees(merchantData.GetAdditionalFees(), basePrice)
 	if err != nil {
 		logger.Error(ctx, "CreateOrder", "failed to calculate additional fees: %v", err)
@@ -62,18 +61,19 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 		return nil, constant.ErrOrderTotalPriceMismatch
 	}
 
-	// Marshal additional fees into JSON
-	additionalFeeJSON, err := json.Marshal(additionalFees)
-	if err != nil {
-		logger.Error(ctx, "CreateOrder", "failed to marshal additional fees: %v", err)
+	// Generate invoice code and create invoice data
+	invoiceData := m.buildInvoiceData(ctx, merchantData, paymentID, grandTotal, additionalFees)
+	if invoiceData == nil {
+		logger.Error(ctx, "CreateOrder", "failed to build invoice data")
 		return nil, constant.ErrInternalServer
 	}
 
-	// Generate invoice code and create invoice data
-	invoiceData := m.buildInvoiceData(ctx, merchantData, paymentID, grandTotal, additionalFeeJSON)
-
 	// Create order data
-	orderData := m.buildOrderData(req, basePrice, orderItems, invoiceData)
+	orderData := m.buildOrderData(ctx, req, basePrice, orderItems, invoiceData)
+	if orderData == nil {
+		logger.Error(ctx, "CreateOrder", "failed to build order data")
+		return nil, constant.ErrInternalServer
+	}
 	logger.Data(ctx, "CreateOrder", "order", orderData)
 
 	var (
@@ -96,6 +96,11 @@ func (m *impl) CreateOrder(ctx context.Context, req *dto.CreateOrderRequest) (*d
 	err = m.orderModule.CreateOrder(ctx, orderData)
 	if err != nil {
 		logger.Error(ctx, "CreateOrder", "failed to create order: %v", err)
+		go func() {
+			if !isPaymentTypeCashier {
+				m.cancelPayment(ctx, invoiceData.GetCode())
+			}
+		}()
 		return nil, constant.ErrInternalServer
 	}
 
@@ -175,29 +180,56 @@ func (m *impl) getPaymentID(paymentTypes []*paymenttype.PaymentType, paymentMeth
 }
 
 // buildInvoiceData creates and returns invoice data
-func (m *impl) buildInvoiceData(ctx context.Context, merchant *merchant.Merchant, paymentID, grandTotal uint64, additionalFees []byte) *invoice.Invoice {
+func (m *impl) buildInvoiceData(ctx context.Context, merchant *merchant.Merchant, paymentID, grandTotal uint64, additionalFees []*invoice.AdditionalFee) *invoice.Invoice {
+	// Marshal additional fees into JSON
+	additionalFeeJSON, err := json.Marshal(additionalFees)
+	if err != nil {
+		logger.Error(ctx, "CreateOrder", "failed to marshal additional fees: %v", err)
+		return nil
+	}
+
 	latestInvoice, _ := m.invoiceModule.GetTodayLatestInvoice(ctx, merchant.GetId())
 	return &invoice.Invoice{
 		Code:           proto.String(invoice.GenerateInvoiceCode(merchant.GetCode(), latestInvoice)),
 		MerchantId:     proto.Uint64(merchant.GetId()),
 		PaymentTypeId:  proto.Uint64(paymentID),
 		TotalPayment:   proto.Uint64(grandTotal),
-		AdditionalFees: additionalFees,
+		AdditionalFees: additionalFeeJSON,
 		Status:         proto.Uint32(invoice.StatusPending),
 	}
 }
 
 // buildOrderData creates and returns order data
-func (m *impl) buildOrderData(req *dto.CreateOrderRequest, basePrice uint64, orderItems []*orderitem.OrderItem, invoiceData *invoice.Invoice) *order.Order {
-	return &order.Order{
+func (m *impl) buildOrderData(ctx context.Context, req *dto.CreateOrderRequest, basePrice uint64, orderItems []*orderitem.OrderItem, invoiceData *invoice.Invoice) *order.Order {
+	guestInfo := &order.GuestInfo{
+		Name:        req.Guest.Name,
+		TotalPerson: req.Guest.Total,
+	}
+	guestInfoJSON, err := json.Marshal(guestInfo)
+	if err != nil {
+		logger.Error(ctx, "CreateOrder", "failed to marshal guest info: %v", err)
+		return nil
+	}
+
+	orderData := &order.Order{
 		MerchantId: proto.Uint64(req.MerchantID),
 		OrderType:  proto.Uint32(req.OrderType),
 		TotalSpend: proto.Uint64(basePrice),
 		Status:     proto.Uint32(order.StatusPending),
 		OrderItems: orderItems,
-		Tables:     []*tableorder.TableOrder{{TableId: req.TableID}},
+		GuestInfo:  guestInfoJSON,
 		Invoice:    invoiceData,
 	}
+
+	if req.TableID != nil {
+		orderData.Tables = []*tableorder.TableOrder{
+			{
+				TableId: proto.Uint64(*req.TableID),
+			},
+		}
+	}
+
+	return orderData
 }
 
 // chargePayment handles payment charging via payment gateway
@@ -214,6 +246,12 @@ func (m *impl) chargePayment(ctx context.Context, orderID string, grandTotal uin
 			Unit:           paymentgateway.UnitMinute,
 			OrderTime:      now.Format("2006-01-02 15:04:05 -0700"),
 		},
+	})
+}
+
+func (m *impl) cancelPayment(ctx context.Context, orderID string) {
+	paymentgateway.GetModule().CancelPayment(ctx, &paymentgateway.CancelPaymentRequest{
+		OrderID: orderID,
 	})
 }
 
@@ -340,8 +378,12 @@ func (m *impl) constructOrderItems(reqItems []dto.Item, itemMap map[uint64]*item
 	return orderItems, basePrice, nil
 }
 
-func (m *impl) validateTable(ctx context.Context, tableID, merchantID uint64) error {
-	table, err := m.tableModule.GetTableByID(ctx, tableID)
+func (m *impl) validateTable(ctx context.Context, tableID *uint64, merchantID uint64) error {
+	if tableID == nil {
+		return nil
+	}
+
+	table, err := m.tableModule.GetTableByID(ctx, *tableID)
 	if err != nil {
 		logger.Error(ctx, "CreateOrder", "failed to get table: %v", err)
 		return err

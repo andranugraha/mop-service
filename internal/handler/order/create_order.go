@@ -2,6 +2,7 @@ package order
 
 import (
 	"errors"
+
 	"github.com/empnefsi/mop-service/internal/common/constant"
 	"github.com/empnefsi/mop-service/internal/common/response"
 	"github.com/empnefsi/mop-service/internal/common/validator"
@@ -37,8 +38,16 @@ func (h *impl) CreateOrder(c *fiber.Ctx) error {
 }
 
 func validateCreateOrderRequest(req *dto.CreateOrderRequest) error {
+	if req.OrderType != order.TypeDineIn && req.OrderType != order.TypeTakeAway {
+		return errors.New("order_type is invalid")
+	}
+
 	if req.OrderType == order.TypeDineIn && req.TableID == nil {
 		return errors.New("table_id is required")
+	}
+
+	if req.OrderType == order.TypeTakeAway && req.TableID != nil {
+		req.TableID = nil
 	}
 
 	return nil

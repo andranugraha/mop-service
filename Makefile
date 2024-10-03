@@ -10,4 +10,7 @@ test:
 clean:
 	rm -rf bin/*
 
+fmt:
+	gofumpt -l -w .
+
 .PHONY: build run test clean
