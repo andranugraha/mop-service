@@ -1,0 +1,363 @@
+definitions:
+  auth.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  landing.Item:
+    properties:
+      description:
+        type: string
+      item_variants:
+        items:
+          $ref: '#/definitions/landing.ItemVariant'
+        type: array
+      name:
+        type: string
+      price:
+        type: integer
+      priority:
+        type: integer
+    type: object
+  landing.ItemCategory:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/landing.Item'
+        type: array
+      name:
+        type: string
+      priority:
+        type: integer
+    type: object
+  landing.ItemVariant:
+    properties:
+      item_variant_options:
+        items:
+          $ref: '#/definitions/landing.ItemVariantOption'
+        type: array
+      max_select:
+        type: integer
+      min_select:
+        type: integer
+      name:
+        type: string
+    type: object
+  landing.ItemVariantOption:
+    properties:
+      name:
+        type: string
+      price:
+        type: integer
+    type: object
+  landing.LandingResponseData:
+    properties:
+      code:
+        type: string
+      item_categories:
+        items:
+          $ref: '#/definitions/landing.ItemCategory'
+        type: array
+      name:
+        type: string
+    type: object
+  merchant.GetMerchantActivePaymentTypesResponse:
+    properties:
+      payment_types:
+        items:
+          $ref: '#/definitions/merchant.PaymentType'
+        type: array
+    type: object
+  merchant.PaymentType:
+    properties:
+      name:
+        type: string
+      type:
+        type: integer
+    type: object
+  order.CreateOrderRequest:
+    properties:
+      guest:
+        $ref: '#/definitions/order.Guest'
+      items:
+        items:
+          $ref: '#/definitions/order.Item'
+        type: array
+      merchant_id:
+        type: integer
+      order_type:
+        type: integer
+      payment_method:
+        type: integer
+      table_id:
+        type: integer
+      total_price:
+        type: integer
+    required:
+    - guest
+    - items
+    - merchant_id
+    - total_price
+    type: object
+  order.CreateOrderResponse:
+    properties:
+      due_time:
+        type: integer
+      order_code:
+        type: string
+      order_id:
+        type: integer
+      payment_qr:
+        type: string
+      total:
+        type: integer
+    type: object
+  order.Guest:
+    properties:
+      name:
+        type: string
+      total_person:
+        type: integer
+    required:
+    - name
+    - total_person
+    type: object
+  order.Item:
+    properties:
+      amount:
+        type: integer
+      item_id:
+        type: integer
+      note:
+        type: string
+      variants:
+        items:
+          $ref: '#/definitions/order.ItemVariant'
+        type: array
+    required:
+    - amount
+    - item_id
+    type: object
+  order.ItemVariant:
+    properties:
+      option_ids:
+        items:
+          type: integer
+        type: array
+      variant_id:
+        type: integer
+    type: object
+  order.PayOrderRequest:
+    properties:
+      order_id:
+        type: integer
+    required:
+    - order_id
+    type: object
+  order.PayOrderResponse:
+    properties:
+      order_code:
+        type: string
+      order_id:
+        type: integer
+      status:
+        type: integer
+      total:
+        type: integer
+    type: object
+  order.PaymentCallbackRequest:
+    properties:
+      acquirer:
+        type: string
+      currency:
+        type: string
+      fraud_status:
+        type: string
+      gross_amount:
+        type: string
+      issuer:
+        type: string
+      merchant_id:
+        type: string
+      order_id:
+        type: string
+      payment_type:
+        type: string
+      settlement_time:
+        type: string
+      signature_key:
+        type: string
+      status_code:
+        type: string
+      status_message:
+        type: string
+      transaction_id:
+        type: string
+      transaction_status:
+        type: string
+      transaction_time:
+        type: string
+      transaction_type:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/v1/auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Login
+      parameters:
+      - description: Login request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResponse'
+      summary: Login
+      tags:
+      - Auth
+  /api/v1/landing/{code}:
+    get:
+      consumes:
+      - application/json
+      description: Landing
+      parameters:
+      - description: Merchant Code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/landing.LandingResponseData'
+      summary: Landing
+      tags:
+      - Landing
+  /api/v1/merchant/{merchant_id}/active-payment-types:
+    get:
+      consumes:
+      - application/json
+      description: Get merchant active payment types
+      parameters:
+      - description: Merchant ID
+        in: path
+        name: merchant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/merchant.GetMerchantActivePaymentTypesResponse'
+      summary: Get Merchant Active Payment Types
+      tags:
+      - Merchant
+  /api/v1/order:
+    post:
+      consumes:
+      - application/json
+      description: Create order
+      parameters:
+      - description: Create order request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.CreateOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/order.CreateOrderResponse'
+      summary: Create Order
+      tags:
+      - Order
+  /api/v1/order/:order_id/push-payment-event:
+    get:
+      consumes:
+      - application/json
+      description: Push payment event to client
+      parameters:
+      - description: Order ID
+        in: path
+        name: order_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Push Payment Event
+      tags:
+      - Order
+  /api/v1/order/pay:
+    post:
+      consumes:
+      - application/json
+      description: Pay order
+      parameters:
+      - description: Pay order request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.PayOrderRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/order.PayOrderResponse'
+      summary: Pay Order
+      tags:
+      - Order
+  /api/v1/order/payment-callback:
+    post:
+      consumes:
+      - application/json
+      description: Payment callback from payment gateway
+      parameters:
+      - description: Payment callback request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/order.PaymentCallbackRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+      summary: Payment Callback
+      tags:
+      - Order
+swagger: "2.0"
