@@ -7,6 +7,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @Summary Landing
+// @Description Landing
+// @Tags Landing
+// @Accept json
+// @Produce json
+// @Param code path string true "Merchant Code"
+// @Success 200 {object} LandingResponseData
+// @Router /api/v1/landing/{code} [get]
 func (h *impl) Landing(c *fiber.Ctx) error {
 	code := c.Params("code")
 	req := &landing.LandingRequest{Code: code}

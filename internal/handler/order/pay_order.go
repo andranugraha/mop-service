@@ -8,6 +8,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @Summary Pay Order
+// @Description Pay order
+// @Tags Order
+// @Accept json
+// @Produce json
+// @Param body body PayOrderRequest true "Pay order request"
+// @Success 200 {object} PayOrderResponse
+// @Router /api/v1/order/pay [post]
 func (h *impl) PayOrder(c *fiber.Ctx) error {
 	req := new(order.PayOrderRequest)
 	if err := c.BodyParser(req); err != nil {

@@ -24,6 +24,14 @@ func NewHandler() Handler {
 	}
 }
 
+// @Summary Get Merchant Active Payment Types
+// @Description Get merchant active payment types
+// @Tags Merchant
+// @Accept json
+// @Produce json
+// @Param merchant_id path string true "Merchant ID"
+// @Success 200 {object} GetMerchantActivePaymentTypesResponse
+// @Router /api/v1/merchant/{merchant_id}/payment-types [get]
 func (h *impl) GetMerchantActivePaymentTypes(c *fiber.Ctx) error {
 	merchantId := c.Params("merchant_id")
 	if merchantId == "" {
@@ -47,6 +55,14 @@ func (h *impl) GetMerchantActivePaymentTypes(c *fiber.Ctx) error {
 	return response.Success(c, req, data)
 }
 
+// @Summary Get Merchant Active Additional Fees
+// @Description Get merchant active additional fees
+// @Tags Merchant
+// @Accept json
+// @Produce json
+// @Param merchant_id path string true "Merchant ID"
+// @Success 200 {object} GetMerchantActiveAdditionalFeesResponse
+// @Router /api/v1/merchant/{merchant_id}/additional-fees [get]
 func (h *impl) GetMerchantActiveAdditionalFees(c *fiber.Ctx) error {
 	merchantId := c.Params("merchant_id")
 	if merchantId == "" {

@@ -23,6 +23,14 @@ func NewHandler() Handler {
 	}
 }
 
+// @Summary Login
+// @Description Login
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param body body LoginRequest true "Login request"
+// @Success 200 {object} LoginResponse
+// @Router /api/v1/auth/login [post]
 func (h *impl) Login(c *fiber.Ctx) error {
 	req := new(auth.LoginRequest)
 	if err := c.BodyParser(req); err != nil {

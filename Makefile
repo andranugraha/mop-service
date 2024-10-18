@@ -1,8 +1,9 @@
 build:
+	make docs
 	go build -o bin/mop-service cmd/server/main.go
 
 run:
-	go run cmd/server/main.go
+	./bin/mop-service
 
 test:
 	go test -v ./...
@@ -10,7 +11,10 @@ test:
 clean:
 	rm -rf bin/*
 
-fmt:
+lint:
 	gofumpt -l -w .
+
+docs:
+	swag init -g cmd/server/main.go
 
 .PHONY: build run test clean

@@ -11,6 +11,14 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
+// @Summary Create Order
+// @Description Create order
+// @Tags Order
+// @Accept json
+// @Produce json
+// @Param body body CreateOrderRequest true "Create order request"
+// @Success 200 {object} CreateOrderResponse
+// @Router /api/v1/order [post]
 func (h *impl) CreateOrder(c *fiber.Ctx) error {
 	req := new(dto.CreateOrderRequest)
 	if err := c.BodyParser(req); err != nil {
