@@ -1,3 +1,5 @@
+SWAG_BIN := $(shell go env GOPATH)/bin/swag
+
 build:
 	go mod tidy
 	make docs
@@ -17,6 +19,6 @@ lint:
 
 docs:
 	go install github.com/swaggo/swag/cmd/swag@latest
-	swag init -g cmd/server/main.go
+	$(SWAG_BIN) init -g cmd/server/main.go
 
 .PHONY: build run test clean lint docs
