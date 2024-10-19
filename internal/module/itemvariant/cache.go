@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
+	"github.com/empnefsi/mop-service/internal/config"
 
 	"github.com/empnefsi/mop-service/internal/common/logger"
 	"github.com/go-redis/redis/v8"
@@ -50,6 +53,8 @@ func (c *cache) GetActiveItemVariantsByIDs(ctx context.Context, ids []uint64) ([
 
 func (c *cache) SetManyActiveItemVariants(ctx context.Context, itemVariants []*ItemVariant) error {
 	pipe := c.client.Pipeline()
+	expiryInSeconds := config.GetCacheItemVariantExpiry()
+	expiryDuration := time.Duration(expiryInSeconds) * time.Second
 	for _, itemVariant := range itemVariants {
 		key := c.getItemVariantKey(itemVariant.GetId())
 		jsonValue, err := json.Marshal(itemVariant)
@@ -57,7 +62,7 @@ func (c *cache) SetManyActiveItemVariants(ctx context.Context, itemVariants []*I
 			logger.Error(ctx, "set_item_variant_to_cache", "failed to marshal item variant: %v", err)
 			return err
 		}
-		pipe.Set(ctx, key, jsonValue, 0)
+		pipe.Set(ctx, key, jsonValue, expiryDuration)
 	}
 	_, err := pipe.Exec(ctx)
 	if err != nil {

@@ -80,7 +80,9 @@ func (c *cache) SetActiveItem(ctx context.Context, item *Item) error {
 		return err
 	}
 
-	err = c.client.Set(ctx, key, jsonValue, 0).Err()
+	expiryInSeconds := config.GetCacheItemExpiry()
+	expiryDuration := time.Duration(expiryInSeconds) * time.Second
+	err = c.client.Set(ctx, key, jsonValue, expiryDuration).Err()
 	if err != nil {
 		logger.Error(ctx, "set_item_to_cache", "failed to set item: %v", err)
 		return err
@@ -91,6 +93,8 @@ func (c *cache) SetActiveItem(ctx context.Context, item *Item) error {
 
 func (c *cache) SetManyActiveItems(ctx context.Context, items []*Item) error {
 	pipe := c.client.Pipeline()
+	expiryInSeconds := config.GetCacheItemExpiry()
+	expiryDuration := time.Duration(expiryInSeconds) * time.Second
 	for _, item := range items {
 		key := c.getItemKey(item.GetId())
 		jsonValue, err := json.Marshal(item)
@@ -98,7 +102,7 @@ func (c *cache) SetManyActiveItems(ctx context.Context, items []*Item) error {
 			logger.Error(ctx, "set_items_to_cache", "failed to marshal item: %v", err)
 			return err
 		}
-		pipe.Set(ctx, key, jsonValue, 0)
+		pipe.Set(ctx, key, jsonValue, expiryDuration)
 	}
 	_, err := pipe.Exec(ctx)
 	if err != nil {

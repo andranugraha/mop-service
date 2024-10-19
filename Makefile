@@ -17,4 +17,4 @@ lint:
 docs:
 	swag init -g cmd/server/main.go
 
-.PHONY: build run test clean
+.PHONY: build run test clean lint docs

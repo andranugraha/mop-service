@@ -3,7 +3,6 @@ package landing
 import (
 	"context"
 
-	"github.com/empnefsi/mop-service/internal/common/constant"
 	"github.com/empnefsi/mop-service/internal/dto/landing"
 	"github.com/empnefsi/mop-service/internal/module/item"
 	"github.com/empnefsi/mop-service/internal/module/itemcategory"
@@ -11,17 +10,13 @@ import (
 	"github.com/empnefsi/mop-service/internal/module/itemvariantoption"
 )
 
-func (m *impl) Landing(ctx context.Context, code string) (*landing.LandingResponseData, error) {
+func (m *impl) Landing(ctx context.Context, code string) (*landing.LandingResponse, error) {
 	merchantData, err := m.merchantModule.GetMerchantOverview(ctx, code)
 	if err != nil {
 		return nil, err
 	}
 
-	if merchantData == nil {
-		return nil, constant.ErrItemNotFound
-	}
-
-	return &landing.LandingResponseData{
+	return &landing.LandingResponse{
 		Code:           merchantData.GetCode(),
 		Name:           merchantData.GetName(),
 		ItemCategories: mapItemCategories(merchantData.GetItemCategories()),

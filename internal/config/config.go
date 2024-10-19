@@ -8,14 +8,20 @@ import (
 )
 
 var (
-	port                         string
-	timeout                      int
-	dbURL                        string
-	redisHost                    string
-	redisUsername                string
-	redisPassword                string
-	tokenExpiry                  int
-	tokenSecret                  string
+	port    string
+	timeout int
+	dbURL   string
+
+	// Cache
+	redisHost     string
+	redisUsername string
+	redisPassword string
+
+	// Token
+	tokenExpiry int
+	tokenSecret string
+
+	// Cache Expiry
 	cacheUserExpiry              int
 	cacheTableExpiry             int
 	cacheMerchantExpiry          int
@@ -23,6 +29,7 @@ var (
 	cacheItemCategoryExpiry      int
 	cacheItemVariantExpiry       int
 	cacheItemVariantOptionExpiry int
+	cacheLandingBannersExpiry    int
 
 	// S3 Digital Ocean
 	spaceKey    string
@@ -34,17 +41,26 @@ var (
 	// Midtrans
 	midtransURL       string
 	midtransServerKey string
+
+	// CDN
+	cdnEndpoint string
 )
 
 func init() {
 	port = getEnv("PORT", "8080")
 	timeout = getEnvInt("TIMEOUT", 5)
 	dbURL = getEnv("DB_URL", "host=localhost auth=postgres password=postgres dbname=postgres port=5432 sslmode=disable TimeZone=Asia/Jakarta")
+
+	// Cache
 	redisHost = getEnv("CACHE_REDIS_HOST", "localhost:6379")
 	redisUsername = getEnv("CACHE_REDIS_USERNAME", "")
 	redisPassword = getEnv("CACHE_REDIS_PASSWORD", "")
+
+	// Token
 	tokenExpiry = getEnvInt("TOKEN_EXPIRY", 86400)
 	tokenSecret = getEnv("TOKEN_SECRET", "secret")
+
+	// Cache Expiry
 	cacheUserExpiry = getEnvInt("CACHE_USER_EXPIRY", 3600)
 	cacheTableExpiry = getEnvInt("CACHE_TABLE_EXPIRY", 3600)
 	cacheMerchantExpiry = getEnvInt("CACHE_MERCHANT_EXPIRY", 3600)
@@ -52,6 +68,7 @@ func init() {
 	cacheItemCategoryExpiry = getEnvInt("CACHE_ITEM_CATEGORY_EXPIRY", 3600)
 	cacheItemVariantExpiry = getEnvInt("CACHE_ITEM_VARIANT_EXPIRY", 3600)
 	cacheItemVariantOptionExpiry = getEnvInt("CACHE_ITEM_VARIANT_OPTION_EXPIRY", 3600)
+	cacheLandingBannersExpiry = getEnvInt("CACHE_LANDING_BANNERS_EXPIRY", 3600)
 
 	// S3 Digital Ocean
 	spaceKey = getEnv("SPACE_KEY", "")
@@ -63,6 +80,9 @@ func init() {
 	// Midtrans
 	midtransURL = getEnv("MIDTRANS_URL", "")
 	midtransServerKey = getEnv("MIDTRANS_SERVER_KEY", "")
+
+	// CDN
+	cdnEndpoint = getEnv("CDN_ENDPOINT", "")
 }
 
 func getEnv(key string, def string) string {
@@ -144,6 +164,10 @@ func GetCacheItemVariantOptionExpiry() int {
 	return cacheItemVariantOptionExpiry
 }
 
+func GetCacheLandingBannersExpiry() int {
+	return cacheLandingBannersExpiry
+}
+
 func GetTimeout() int {
 	return timeout
 }
@@ -158,4 +182,8 @@ func GetMidtransURL() string {
 
 func GetMidtransServerKey() string {
 	return midtransServerKey
+}
+
+func GetCDNEndpoint() string {
+	return cdnEndpoint
 }

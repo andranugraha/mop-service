@@ -317,29 +317,7 @@ func OutgoingRequest(ctx context.Context, logGroup, req interface{}) {
 	logEntry.Info("outgoing_request")
 }
 
-func DataWithCost(ctx context.Context, logGroup, req interface{}, res interface{}, cost time.Duration) {
-	md, _ := metadata.FromIncomingContext(ctx)
-	reqJSON, _ := json.Marshal(req)
-	resJSON, _ := json.Marshal(res)
-
-	logEntry := dataLog.WithFields(logrus.Fields{
-		"group": logGroup,
-		"request_id": func() string {
-			if len(md.Get("request_id")) > 0 {
-				return md.Get("request_id")[0]
-			}
-			return "0"
-		}(),
-		"user_id": func() string {
-			if len(md.Get("user_id")) > 0 {
-				return md.Get("user_id")[0]
-			}
-			return "0"
-		}(),
-		"cost":     cost,
-		"request":  string(reqJSON),
-		"response": string(resJSON),
-	})
-
-	logEntry.Info("response_data_record")
+func InfoWithData(ctx context.Context, logGroup, msg string, data interface{}) {
+	dataJSON, _ := json.Marshal(data)
+	Info(ctx, logGroup, msg, string(dataJSON))
 }

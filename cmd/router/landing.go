@@ -9,4 +9,5 @@ func registerLandingRoutes(router fiber.Router) {
 	landingHandler := landing.NewHandler()
 	landingRouter := router.Group("/landing")
 	landingRouter.Get("/:code", landingHandler.Landing)
+	landingRouter.Get("/:code/banners", landingHandler.GetLandingBanners)
 }

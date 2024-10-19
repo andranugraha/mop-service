@@ -30,8 +30,21 @@ type ItemVariantOption struct {
 	Price uint64 `json:"price"`
 }
 
-type LandingResponseData struct {
+type LandingResponse struct {
 	Code           string         `json:"code"`
 	Name           string         `json:"name"`
 	ItemCategories []ItemCategory `json:"item_categories"`
+}
+
+type GetLandingBannersResponse struct {
+	Banners []Banner `json:"banners"`
+}
+
+type Banner struct {
+	Id          uint64  `json:"id"`
+	Image       string  `json:"image"`
+	Title       string  `json:"title"`
+	Description string  `json:"description"`
+	StartDate   uint64  `json:"start_date"`
+	EndDate     *uint64 `json:"end_date"`
 }

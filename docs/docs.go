@@ -75,13 +75,77 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/landing.LandingResponseData"
+                            "$ref": "#/definitions/landing.LandingResponse"
                         }
                     }
                 }
             }
         },
-        "/api/v1/merchant/{merchant_id}/active-payment-types": {
+        "/api/v1/landing/{code}/banners": {
+            "get": {
+                "description": "Get Landing Banners",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Landing"
+                ],
+                "summary": "Get Landing Banners",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/landing.GetLandingBannersResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/merchant/{merchant_id}/additional-fees": {
+            "get": {
+                "description": "Get merchant active additional fees",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Merchant"
+                ],
+                "summary": "Get Merchant Active Additional Fees",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Merchant ID",
+                        "name": "merchant_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/merchant.GetMerchantActiveAdditionalFeesResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/merchant/{merchant_id}/payment-types": {
             "get": {
                 "description": "Get merchant active payment types",
                 "consumes": [
@@ -266,6 +330,40 @@ const docTemplate = `{
                 }
             }
         },
+        "landing.Banner": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "landing.GetLandingBannersResponse": {
+            "type": "object",
+            "properties": {
+                "banners": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/landing.Banner"
+                    }
+                }
+            }
+        },
         "landing.Item": {
             "type": "object",
             "properties": {
@@ -337,7 +435,7 @@ const docTemplate = `{
                 }
             }
         },
-        "landing.LandingResponseData": {
+        "landing.LandingResponse": {
             "type": "object",
             "properties": {
                 "code": {
@@ -351,6 +449,34 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "merchant.AdditionalFee": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "fee": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                }
+            }
+        },
+        "merchant.GetMerchantActiveAdditionalFeesResponse": {
+            "type": "object",
+            "properties": {
+                "additional_fees": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/merchant.AdditionalFee"
+                    }
                 }
             }
         },

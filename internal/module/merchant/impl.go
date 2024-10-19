@@ -7,26 +7,22 @@ import (
 )
 
 func (i *impl) GetMerchantOverview(ctx context.Context, code string) (*Merchant, error) {
-	merchant, err := i.cacheStore.GetMerchantOverview(ctx, code)
-	if err != nil {
-		return nil, err
-	}
-
+	merchant, _ := i.cacheStore.GetMerchantOverview(ctx, code)
 	if merchant != nil {
 		return merchant, nil
 	}
 
-	merchant, err = i.dbStore.GetMerchantOverview(ctx, code)
+	merchant, err := i.dbStore.GetMerchantOverview(ctx, code)
 	if err != nil {
 		return nil, err
 	}
 
 	if merchant == nil {
-		return nil, constant.ErrItemNotFound
+		return nil, constant.ErrMerchantNotFound
 	}
 
 	go func() {
-		err = i.cacheStore.SetMerchant(ctx, merchant)
+		_ = i.cacheStore.SetMerchant(ctx, merchant)
 	}()
 
 	return merchant, nil
@@ -39,6 +35,28 @@ func (i *impl) GetMerchantByID(ctx context.Context, id uint64) (*Merchant, error
 	}
 
 	merchant, err := i.dbStore.GetMerchantByID(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+
+	if merchant == nil {
+		return nil, constant.ErrMerchantNotFound
+	}
+
+	go func() {
+		_ = i.cacheStore.SetMerchant(ctx, merchant)
+	}()
+
+	return merchant, nil
+}
+
+func (i *impl) GetMerchantByCode(ctx context.Context, code string) (*Merchant, error) {
+	merchant, _ := i.cacheStore.GetMerchantByCode(ctx, code)
+	if merchant != nil {
+		return merchant, nil
+	}
+
+	merchant, err := i.dbStore.GetMerchantByCode(ctx, code)
 	if err != nil {
 		return nil, err
 	}

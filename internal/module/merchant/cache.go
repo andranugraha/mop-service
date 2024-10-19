@@ -85,6 +85,7 @@ func (c *cache) GetMerchantByCode(ctx context.Context, code string) (*Merchant, 
 		return nil, err
 	}
 
+	logger.InfoWithData(ctx, "fetch_merchant_from_cache", "merchant: %v", merchant)
 	return merchant, nil
 }
 
@@ -112,12 +113,6 @@ func (c *cache) GetMerchantOverview(ctx context.Context, code string) (*Merchant
 	merchant := &Merchant{}
 
 	val, err := c.client.Get(ctx, KEY).Result()
-	if err == redis.Nil {
-		logger.Info(
-			ctx, "fetch_merchant_overview_from_cache", "merchant not found in cache, fetching from db",
-		)
-		return nil, nil
-	}
 	if err != nil {
 		logger.Error(
 			ctx, "fetch_merchant_overview_from_cache", "failed to get merchant overview: %v", err,

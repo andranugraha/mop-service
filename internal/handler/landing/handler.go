@@ -7,6 +7,7 @@ import (
 
 type Handler interface {
 	Landing(c *fiber.Ctx) error
+	GetLandingBanners(c *fiber.Ctx) error
 }
 
 type impl struct {

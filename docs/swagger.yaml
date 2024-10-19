@@ -14,6 +14,28 @@ definitions:
       token:
         type: string
     type: object
+  landing.Banner:
+    properties:
+      description:
+        type: string
+      end_date:
+        type: integer
+      id:
+        type: integer
+      image:
+        type: string
+      start_date:
+        type: integer
+      title:
+        type: string
+    type: object
+  landing.GetLandingBannersResponse:
+    properties:
+      banners:
+        items:
+          $ref: '#/definitions/landing.Banner'
+        type: array
+    type: object
   landing.Item:
     properties:
       description:
@@ -60,7 +82,7 @@ definitions:
       price:
         type: integer
     type: object
-  landing.LandingResponseData:
+  landing.LandingResponse:
     properties:
       code:
         type: string
@@ -70,6 +92,24 @@ definitions:
         type: array
       name:
         type: string
+    type: object
+  merchant.AdditionalFee:
+    properties:
+      description:
+        type: string
+      fee:
+        type: integer
+      name:
+        type: string
+      type:
+        type: integer
+    type: object
+  merchant.GetMerchantActiveAdditionalFeesResponse:
+    properties:
+      additional_fees:
+        items:
+          $ref: '#/definitions/merchant.AdditionalFee'
+        type: array
     type: object
   merchant.GetMerchantActivePaymentTypesResponse:
     properties:
@@ -252,11 +292,53 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/landing.LandingResponseData'
+            $ref: '#/definitions/landing.LandingResponse'
       summary: Landing
       tags:
       - Landing
-  /api/v1/merchant/{merchant_id}/active-payment-types:
+  /api/v1/landing/{code}/banners:
+    get:
+      consumes:
+      - application/json
+      description: Get Landing Banners
+      parameters:
+      - description: Code
+        in: path
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/landing.GetLandingBannersResponse'
+      summary: Get Landing Banners
+      tags:
+      - Landing
+  /api/v1/merchant/{merchant_id}/additional-fees:
+    get:
+      consumes:
+      - application/json
+      description: Get merchant active additional fees
+      parameters:
+      - description: Merchant ID
+        in: path
+        name: merchant_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/merchant.GetMerchantActiveAdditionalFeesResponse'
+      summary: Get Merchant Active Additional Fees
+      tags:
+      - Merchant
+  /api/v1/merchant/{merchant_id}/payment-types:
     get:
       consumes:
       - application/json

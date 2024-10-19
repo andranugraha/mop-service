@@ -1,4 +1,4 @@
-package merchant
+package banner
 
 import (
 	"context"
@@ -7,9 +7,7 @@ import (
 )
 
 type Module interface {
-	GetMerchantOverview(ctx context.Context, code string) (*Merchant, error)
-	GetMerchantByID(ctx context.Context, id uint64) (*Merchant, error)
-	GetMerchantByCode(ctx context.Context, code string) (*Merchant, error)
+	GetActiveBannersByMerchantID(ctx context.Context, merchantID uint64) ([]*Banner, error)
 }
 
 type impl struct {
