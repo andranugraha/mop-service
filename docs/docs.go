@@ -370,6 +370,12 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
+                "image": {
+                    "type": "string"
+                },
                 "item_variants": {
                     "type": "array",
                     "items": {
@@ -390,6 +396,12 @@ const docTemplate = `{
         "landing.ItemCategory": {
             "type": "object",
             "properties": {
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
                 "items": {
                     "type": "array",
                     "items": {
@@ -407,6 +419,9 @@ const docTemplate = `{
         "landing.ItemVariant": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "item_variant_options": {
                     "type": "array",
                     "items": {
@@ -427,6 +442,9 @@ const docTemplate = `{
         "landing.ItemVariantOption": {
             "type": "object",
             "properties": {
+                "id": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -440,6 +458,9 @@ const docTemplate = `{
             "properties": {
                 "code": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "item_categories": {
                     "type": "array",

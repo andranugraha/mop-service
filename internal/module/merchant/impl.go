@@ -22,7 +22,7 @@ func (i *impl) GetMerchantOverview(ctx context.Context, code string) (*Merchant,
 	}
 
 	go func() {
-		_ = i.cacheStore.SetMerchant(ctx, merchant)
+		_ = i.cacheStore.SetMerchantOverview(ctx, merchant)
 	}()
 
 	return merchant, nil

@@ -131,9 +131,8 @@ func (c *cache) GetMerchantOverview(ctx context.Context, code string) (*Merchant
 	return merchant, nil
 }
 
-func (c *cache) SetMerchantOverview(ctx context.Context, code string, merchant *Merchant) error {
-	key := "merchant_overview:" + code
-
+func (c *cache) SetMerchantOverview(ctx context.Context, merchant *Merchant) error {
+	key := "merchant_overview:" + merchant.GetCode()
 	val, err := json.Marshal(merchant)
 	if err != nil {
 		logger.Error(

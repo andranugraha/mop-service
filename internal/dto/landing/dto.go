@@ -5,20 +5,25 @@ type LandingRequest struct {
 }
 
 type ItemCategory struct {
+	Id       uint64 `json:"id"`
 	Name     string `json:"name"`
 	Priority int32  `json:"priority"`
+	Icon     string `json:"icon"`
 	Items    []Item `json:"items"`
 }
 
 type Item struct {
+	Id           uint64        `json:"id"`
 	Name         string        `json:"name"`
 	Description  string        `json:"description"`
+	Image        string        `json:"image"`
 	Price        uint64        `json:"price"`
 	Priority     int32         `json:"priority"`
 	ItemVariants []ItemVariant `json:"item_variants"`
 }
 
 type ItemVariant struct {
+	Id                 uint64              `json:"id"`
 	Name               string              `json:"name"`
 	MinSelect          uint32              `json:"min_select"`
 	MaxSelect          uint32              `json:"max_select"`
@@ -26,11 +31,13 @@ type ItemVariant struct {
 }
 
 type ItemVariantOption struct {
+	Id    uint64 `json:"id"`
 	Name  string `json:"name"`
 	Price uint64 `json:"price"`
 }
 
 type LandingResponse struct {
+	Id             uint64         `json:"id"`
 	Code           string         `json:"code"`
 	Name           string         `json:"name"`
 	ItemCategories []ItemCategory `json:"item_categories"`

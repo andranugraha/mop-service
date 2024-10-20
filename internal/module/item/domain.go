@@ -16,6 +16,7 @@ type Item struct {
 	Description    *string `json:"description"`
 	Price          *uint64 `json:"price"`
 	Priority       *int32  `json:"priority"`
+	Image          *string `json:"image"`
 	Ctime          *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime          *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime          *uint64 `json:"dtime"`
@@ -60,6 +61,13 @@ func (i *Item) GetPriority() int32 {
 		return *i.Priority
 	}
 	return 0
+}
+
+func (i *Item) GetImage() string {
+	if i.Image != nil {
+		return *i.Image
+	}
+	return ""
 }
 
 func (i *Item) GetItemCategoryId() uint64 {
