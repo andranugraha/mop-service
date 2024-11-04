@@ -40,15 +40,23 @@ func constructCategories(itemCategories []*itemcategory.ItemCategory) []landing.
 
 func constructItems(items []*item.Item) []landing.Item {
 	mappedItems := make([]landing.Item, len(items))
-	for i, item := range items {
+	for i, v := range items {
+		itemImages := make([]string, 0)
+		rawImages := v.GetImages()
+		if len(rawImages) > 0 {
+			for _, image := range rawImages {
+				itemImages = append(itemImages, config.GetCDNEndpoint()+"/"+image)
+			}
+		}
 		mappedItems[i] = landing.Item{
-			Id:           item.GetId(),
-			Name:         item.GetName(),
-			Description:  item.GetDescription(),
-			Image:        config.GetCDNEndpoint() + "/" + item.GetImage(),
-			Price:        item.GetPrice(),
-			Priority:     item.GetPriority(),
-			ItemVariants: constructItemVariants(item.GetVariants()),
+			Id:            v.GetId(),
+			Name:          v.GetName(),
+			Description:   v.GetDescription(),
+			Images:        itemImages,
+			Price:         v.GetPrice(),
+			Priority:      v.GetPriority(),
+			ItemVariants:  constructItemVariants(v.GetVariants()),
+			IsRecommended: v.GetIsRecommended() == item.Recommended,
 		}
 	}
 	return mappedItems

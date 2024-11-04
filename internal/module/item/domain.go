@@ -1,6 +1,7 @@
 package item
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/empnefsi/mop-service/internal/module/itemvariant"
@@ -9,6 +10,10 @@ import (
 
 const tableName = "item_tab"
 
+const (
+	Recommended = 1
+)
+
 type Item struct {
 	Id             *uint64 `gorm:"primaryKey" json:"id"`
 	ItemCategoryId *uint64 `json:"item_category_id"`
@@ -16,7 +21,8 @@ type Item struct {
 	Description    *string `json:"description"`
 	Price          *uint64 `json:"price"`
 	Priority       *int32  `json:"priority"`
-	Image          *string `json:"image"`
+	Images         []byte  `json:"images"`
+	IsRecommended  *uint   `json:"is_recommended"`
 	Ctime          *uint64 `gorm:"autoCreateTime" json:"ctime"`
 	Mtime          *uint64 `gorm:"autoUpdateTime" json:"mtime"`
 	Dtime          *uint64 `json:"dtime"`
@@ -63,11 +69,19 @@ func (i *Item) GetPriority() int32 {
 	return 0
 }
 
-func (i *Item) GetImage() string {
-	if i.Image != nil {
-		return *i.Image
+func (i *Item) GetImages() []string {
+	images := make([]string, 0)
+	if i.Images != nil {
+		_ = json.Unmarshal(i.Images, &images)
 	}
-	return ""
+	return images
+}
+
+func (i *Item) GetIsRecommended() uint {
+	if i.IsRecommended != nil {
+		return *i.IsRecommended
+	}
+	return 0
 }
 
 func (i *Item) GetItemCategoryId() uint64 {

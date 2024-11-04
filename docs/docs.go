@@ -373,8 +373,14 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "image": {
-                    "type": "string"
+                "images": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "is_recommended": {
+                    "type": "boolean"
                 },
                 "item_variants": {
                     "type": "array",

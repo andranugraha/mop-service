@@ -13,13 +13,14 @@ type ItemCategory struct {
 }
 
 type Item struct {
-	Id           uint64        `json:"id"`
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	Image        string        `json:"image"`
-	Price        uint64        `json:"price"`
-	Priority     int32         `json:"priority"`
-	ItemVariants []ItemVariant `json:"item_variants"`
+	Id            uint64        `json:"id"`
+	Name          string        `json:"name"`
+	Description   string        `json:"description"`
+	Images        []string      `json:"images"`
+	Price         uint64        `json:"price"`
+	Priority      int32         `json:"priority"`
+	IsRecommended bool          `json:"is_recommended"`
+	ItemVariants  []ItemVariant `json:"item_variants"`
 }
 
 type ItemVariant struct {
